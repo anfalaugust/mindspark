@@ -251,13 +251,13 @@ button:focus-visible,[tabindex]:focus-visible,input:focus-visible{outline:3px so
 .lvhero{background:linear-gradient(135deg,#8C74F0,#6A4BE0);color:#fff;border-radius:24px;padding:18px 20px;position:relative;overflow:hidden;min-height:140px}
 .lvhero::after{content:"";position:absolute;right:-40px;top:-50px;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.08)}
 .lvart{position:absolute;right:14px;top:50%;transform:translateY(-50%);z-index:1}
-.lvgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.lv4{height:84px;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;position:relative}
-.lv4 .num{font-size:28px;line-height:1}
+.lvgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.lv4{height:74px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;position:relative}
+.lv4 .num{font-size:22px;line-height:1}
 .lv4.done{background:var(--card);box-shadow:0 4px 12px rgba(58,35,64,.08)}
 .lv4.cur{background:var(--yel);box-shadow:0 0 0 4px rgba(255,201,60,.35),inset 0 0 0 3px var(--yeld)}
 .lv4.cur .num{color:#3A2340}
-.lv4.cur .peek{position:absolute;right:-8px;top:-14px;width:34px}
+.lv4.cur .peek{position:absolute;right:-8px;top:-14px;width:30px}
 .lv4.lock{background:var(--lock)}
 .lv4.lock .num{opacity:.25;font-size:24px}
 .lvfoot{position:absolute;left:24px;right:24px;bottom:96px;z-index:3}
@@ -267,7 +267,10 @@ button:focus-visible,[tabindex]:focus-visible,input:focus-visible{outline:3px so
 .pmhead img{width:84px}
 .pbadge{position:absolute;right:-4px;top:2px;width:32px;height:32px;border-radius:50%;background:#7D62E9;display:grid;place-items:center}
 .pstat{background:#fff;border-radius:16px;padding:8px}
-.ptog{display:flex;align-items:center;gap:8px;background:#fff;border-radius:16px;padding:7px 8px}
+.ptog{display:flex;align-items:center;gap:6px;background:#fff;border-radius:16px;padding:7px 8px;min-width:0}
+.ptog .f{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pmodal .grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.pmodal .ico{flex:0 0 auto}
 .toggle.sm{width:40px;height:24px;border-radius:12px}
 .toggle.sm::after{width:18px;height:18px;left:3px;top:3px}
 .toggle.sm.on::after{left:19px}
@@ -307,12 +310,27 @@ button:focus-visible,[tabindex]:focus-visible,input:focus-visible{outline:3px so
 .mx.bad{background:#FF8A8F;animation:shake .35s}
 .mx.miss{box-shadow:inset 0 0 0 4px #FFE38F}
 
-/* v2.1 page tweaks */
-:root{--page:#FFFFFF!important;--page-ink:#3A2340!important}
-html,body{background:#FFFFFF!important}
-#side button#restartBtn{background:#C94683;color:#fff;box-shadow:0 4px 0 #A3346A;padding:10px 20px;border-radius:16px}
-#side button#restartBtn:active{transform:translateY(3px);box-shadow:0 1px 0 #A3346A}
-</style>
+/* ---------- v3 ---------- */
+.mchar svg,.mhead svg{display:block;width:100%;height:auto}
+.mhead{display:block;width:100%}
+.av .mhead{width:86%}
+.tip .av .mhead{width:92%;margin-top:4%}
+.lv4.lock .num{font-size:19px}
+.stabs{display:flex;overflow-x:auto;gap:8px;scrollbar-width:none;padding-bottom:2px}
+.stabs::-webkit-scrollbar{display:none}
+.stabs button{flex:0 0 auto}
+.tile .art .mhead{margin:0 auto}
+.bst.t7 .tube::before{left:-3px;right:-3px}
+.bst.t8 .tube::before{left:-1px;right:-1px}
+.bst.t8 .tube{border-width:3px}
+.blkart svg{max-height:220px;width:auto!important;max-width:100%}
+.pmhead .mhead{width:80px}
+
+.ptogs{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:16px}
+.stabs{flex-wrap:wrap;overflow:visible}
+.lvart{transform:translateY(-50%) scale(var(--as,1));transform-origin:right center}
+.mchar{position:relative}
+:root{--page:#FFFFFF!important;--page-ink:#3A2340!important}html,body{background:#FFFFFF!important}#side button#restartBtn{background:#C94683;color:#fff;box-shadow:0 4px 0 #A3346A;padding:10px 20px;border-radius:16px}</style>
 </head>
 <body>
 <div id="stage">
@@ -337,6 +355,8 @@ function freshState() {
     puzzle: { unlocked: 1, stars: {}, tut: false },
     memory: { unlocked: 1, stars: {}, tut: false },
     ballsort: { unlocked: 1, stars: {}, tut: false },
+    mathdash: { unlocked: 1, stars: {}, tut: false }, blocks: { unlocked: 1, stars: {}, tut: false }, matrix: { unlocked: 1, stars: {}, tut: false },
+    glasses: 'red', pose: 'classic', held: 'wand',
     lib: { mathdash: false, blocks: false, matrix: false, ballsort: false },
     blocksBest: 0, matrixBest: 0,
     mathBest: 0, dailyDone: null, chestDay: null, chests: 0,
@@ -348,7 +368,8 @@ function freshState() {
 }
 let S;
 try { S = Object.assign(freshState(), JSON.parse(localStorage.getItem(KEY) || 'null') || {}); } catch (e) { S = freshState(); }
-if (!S.ballsort) S.ballsort = { unlocked: 1, stars: {}, tut: false };
+['ballsort', 'mathdash', 'blocks', 'matrix'].forEach(k => { if (!S[k] || S[k].stars === undefined) S[k] = { unlocked: 1, stars: {}, tut: false }; });
+if (S.hat === 'shades') { S.hat = null; S.glasses = 'shades'; } if (S.owned.includes('hat_shades') && !S.owned.includes('gl_shades')) S.owned.push('gl_shades');
 S.lib = Object.assign({ mathdash: false, blocks: false, matrix: false, ballsort: false }, S.lib || {});
 S.fav = Object.assign({ puzzle: false, memory: true, ballsort: false }, S.fav || {}); S.seenNew = Object.assign({ puzzle: false, memory: false, ballsort: false }, S.seenNew || {});
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
@@ -502,15 +523,6 @@ function nav(on) {
 const AVBG = { pink: 'var(--cyan)', blue: 'var(--cream2)', purple: 'var(--green)', teal: 'var(--peach)', green: 'var(--pinkl)', orange: 'var(--lav)', bronze: '#FBE3CF', silver: '#E7ECF2', gold: '#FFF0C2', galaxy: '#2E2160' };
 const HATS = { party: { img: 'hat_party', w: .36, top: -.02, x: .07, rot: 14 }, shades: { img: 'hat_shades', w: .5, top: .46, x: 0, rot: 0 }, crown: { img: 'hat_crown', w: .44, top: .0, x: 0, rot: 0 }, wizard: { svg: true, w: .54, top: -.14, x: .03, rot: 8 } };
 function wizardHat() { return `<svg viewBox="0 0 60 56"><path d="M30 2C36 16 42 30 46 44H14C18 30 24 16 30 2z" fill="#A78BFA"/><path d="${starPts(31, 24, 7)}" fill="#FFC93C"/><ellipse cx="30" cy="46" rx="29" ry="8" fill="#8B6CF0"/></svg>`; }
-function avatar(size, opts = {}) {
-  const a = opts.av || (S.profile && S.profile.avatar) || 'pink';
-  const isHead = !['bronze', 'silver', 'gold', 'galaxy'].includes(a);
-  const img = isHead ? `<img class="head" alt="" src="${ASSET['head_' + a]}">` : `<img class="full" alt="" src="${ASSET['av_' + a]}">`;
-  let hat = '';
-  const h = opts.hat !== undefined ? opts.hat : S.hat;
-  if (h && HATS[h] && isHead) { const H = HATS[h]; hat = `<div class="hat" style="width:${size * H.w}px;top:${size * H.top}px;left:${size * ((1 - H.w) / 2 + H.x)}px;transform:rotate(${H.rot}deg)">${H.svg ? wizardHat() : `<img alt="" style="width:100%" src="${ASSET[H.img]}">`}</div>`; }
-  return `<div class="av ${opts.ring ? 'ring' : ''}" style="width:${size}px;height:${size}px;background:${AVBG[a]}">${img}${hat}</div>`;
-}
 function btn(label, cls, act, extra = '', ic = '') { return `<button class="btn ${cls}" ${act ? `data-act="${act}"` : ''} ${extra}>${ic}${label}</button>`; }
 function toast(html) {
   const app = document.querySelector('.app'); if (!app) return;
@@ -550,6 +562,117 @@ document.addEventListener('click', e => {
   if (ACTS[a]) { ACTS[a](t, e); return; }
 });
 
+const CPOSE={"classic": {"hand": [735, 280], "s": "<ellipse cx=\"452\" cy=\"812\" rx=\"190\" ry=\"20\" fill=\"#5A0B33\" opacity=\".22\"/><path d=\"M405 470L370 762\" stroke=\"%D%\" stroke-width=\"34\" stroke-linecap=\"round\" fill=\"none\"/><path d=\"M500 470L535 762\" stroke=\"%D%\" stroke-width=\"34\" stroke-linecap=\"round\" fill=\"none\"/><path d=\"M300 792Q300 750 350.0 748Q400 750 400 792Z\" fill=\"%S%\"/><rect x=\"292\" y=\"782\" width=\"116\" height=\"16\" rx=\"8\" fill=\"#fff\" stroke=\"%SD%\" stroke-width=\"4\"/><path d=\"M341.0 764h18\" stroke=\"#fff\" stroke-width=\"4\" stroke-linecap=\"round\"/><path d=\"M505 792Q505 750 555.0 748Q605 750 605 792Z\" fill=\"%S%\"/><rect x=\"497\" y=\"782\" width=\"116\" height=\"16\" rx=\"8\" fill=\"#fff\" stroke=\"%SD%\" stroke-width=\"4\"/><path d=\"M546.0 764h18\" stroke=\"#fff\" stroke-width=\"4\" stroke-linecap=\"round\"/><path d=\"M245 410Q170 430 175 490Q180 535 215 545\" stroke=\"%D%\" stroke-width=\"34\" stroke-linecap=\"round\" fill=\"none\"/><circle cx=\"222\" cy=\"546\" r=\"27\" fill=\"%D%\"/><path d=\"M655 395Q730 395 735 320L737 285\" stroke=\"%D%\" stroke-width=\"34\" stroke-linecap=\"round\" fill=\"none\"/>%HELD%<circle cx=\"735\" cy=\"280\" r=\"27\" fill=\"%D%\"/><path d=\"M685 352 Q731 410 648 441 Q636 502 548 502 Q492 559 417 515 Q330 536 296 477 Q201 464 225 398 Q164 352 225 306 Q203 241 296 227 Q326 162 417 189 Q490 155 548 202 Q644 195 648 263 Q727 295 685 352 Z\" fill=\"%D%\"/><path d=\"M685 330 Q731 388 648 419 Q636 480 548 480 Q492 537 417 493 Q330 514 296 455 Q201 442 225 376 Q164 330 225 284 Q203 219 296 205 Q326 140 417 167 Q490 133 548 180 Q644 173 648 241 Q727 273 685 330 Z\" fill=\"%B%\"/><path d=\"M606 415Q603 454 547 451 M405 465Q351 482 334 442 M308 427Q245 422 266 380 M266 280Q247 238 308 233 M439 192Q483 168 516 199 M625 265Q678 283 647 318 M520 230q22-16 44 0 M600 300q-14 22 4 42 M300 400q16 22 42 12 M560 430q26 6 42-16 M400 470q24 14 52 2q22-10 44 4 M400 215q20-18 46-4\" stroke=\"%F%\" stroke-width=\"8\" stroke-linecap=\"round\" fill=\"none\"/><path d=\"M470 105L430 175H462L442 235L505 150H470L492 105Z\" fill=\"#FFC93C\" stroke=\"#F5A623\" stroke-width=\"6\" stroke-linejoin=\"round\"/>%GLB%<ellipse cx=\"402\" cy=\"332\" rx=\"14\" ry=\"18\" fill=\"#1E2A4A\"/><ellipse cx=\"508\" cy=\"332\" rx=\"14\" ry=\"18\" fill=\"#1E2A4A\"/><circle cx=\"407\" cy=\"325\" r=\"5\" fill=\"#fff\"/><circle cx=\"513\" cy=\"325\" r=\"5\" fill=\"#fff\"/><g fill=\"%C%\" opacity=\".85\"><ellipse cx=\"362\" cy=\"395\" rx=\"20\" ry=\"11\"/><ellipse cx=\"548\" cy=\"395\" rx=\"20\" ry=\"11\"/></g><path d=\"M427 390Q455 420 483 390Z\" fill=\"#1E2A4A\"/><path d=\"M442 403Q455 414 468 403Q455 409 442 403Z\" fill=\"#FF6F91\"/>%GLA%%HAT%"}, "wave": {"hand": [755, 250], "s": "<ellipse cx=\"452\" cy=\"812\" rx=\"190\" ry=\"20\" fill=\"#5A0B33\" opacity=\".22\"/><path d=\"M405 470L370 762\" stroke=\"%D%\" stroke-width=\"34\" stroke-linecap=\"round\" fill=\"none\"/><path d=\"M500 470L535 762\" stroke=\"%D%\" stroke-width=\"34\" stroke-linecap=\"round\" fill=\"none\"/><path d=\"M300 792Q300 750 350.0 748Q400 750 400 792Z\" fill=\"%S%\"/><rect x=\"292\" y=\"782\" width=\"116\" height=\"16\" rx=\"8\" fill=\"#fff\" stroke=\"%SD%\" stroke-width=\"4\"/><path d=\"M341.0 764h18\" stroke=\"#fff\" stroke-width=\"4\" stroke-linecap=\"round\"/><path d=\"M505 792Q505 750 555.0 748Q605 750 605 792Z\" fill=\"%S%\"/><rect x=\"497\" y=\"782\" width=\"116\" height=\"16\" rx=\"8\" fill=\"#fff\" stroke=\"%SD%\" stroke-width=\"4\"/><path d=\"M546.0 764h18\" stroke=\"#fff\" stroke-width=\"4\" stroke-linecap=\"round\"/><path d=\"M245 410Q170 430 175 490Q180 535 215 545\" stroke=\"%D%\" stroke-width=\"34\" stroke-linecap=\"round\" fill=\"none\"/><circle cx=\"222\" cy=\"546\" r=\"27\" fill=\"%D%\"/><path d=\"M655 380Q730 360 750 270\" stroke=\"%D%\" stroke-width=\"34\" stroke-linecap=\"round\" fill=\"none\"/><path d=\"M685 352 Q731 410 648 441 Q636 502 548 502 Q492 559 417 515 Q330 536 296 477 Q201 464 225 398 Q164 352 225 306 Q203 241 296 227 Q326 162 417 189 Q490 155 548 202 Q644 195 648 263 Q727 295 685 352 Z\" fill=\"%D%\"/><path d=\"M685 330 Q731 388 648 419 Q636 480 548 480 Q492 537 417 493 Q330 514 296 455 Q201 442 225 376 Q164 330 225 284 Q203 219 296 205 Q326 140 417 167 Q490 133 548 180 Q644 173 648 241 Q727 273 685 330 Z\" fill=\"%B%\"/><path d=\"M606 415Q603 454 547 451 M405 465Q351 482 334 442 M308 427Q245 422 266 380 M266 280Q247 238 308 233 M439 192Q483 168 516 199 M625 265Q678 283 647 318 M520 230q22-16 44 0 M600 300q-14 22 4 42 M300 400q16 22 42 12 M560 430q26 6 42-16 M400 470q24 14 52 2q22-10 44 4 M400 215q20-18 46-4\" stroke=\"%F%\" stroke-width=\"8\" stroke-linecap=\"round\" fill=\"none\"/><path d=\"M470 105L430 175H462L442 235L505 150H470L492 105Z\" fill=\"#FFC93C\" stroke=\"#F5A623\" stroke-width=\"6\" stroke-linejoin=\"round\"/>%GLB%<ellipse cx=\"402\" cy=\"332\" rx=\"14\" ry=\"18\" fill=\"#1E2A4A\"/><circle cx=\"407\" cy=\"325\" r=\"5\" fill=\"#fff\"/><path d=\"M492 334Q508 318 524 334\" stroke=\"#1E2A4A\" stroke-width=\"8\" stroke-linecap=\"round\" fill=\"none\"/><g fill=\"%C%\" opacity=\".85\"><ellipse cx=\"362\" cy=\"395\" rx=\"20\" ry=\"11\"/><ellipse cx=\"548\" cy=\"395\" rx=\"20\" ry=\"11\"/></g><path d=\"M427 390Q455 420 483 390Z\" fill=\"#1E2A4A\"/><path d=\"M442 403Q455 414 468 403Q455 409 442 403Z\" fill=\"#FF6F91\"/>%GLA%%HELD%<circle cx=\"755\" cy=\"250\" r=\"27\" fill=\"%D%\"/><g stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\" fill=\"none\" opacity=\".9\"><path d=\"M800 200q20 30 0 60\"/><path d=\"M825 180q32 45 0 100\"/></g>%HAT%"}, "jump": {"hand": [742, 205], "dy": -60, "s": "<ellipse cx=\"452\" cy=\"812\" rx=\"140\" ry=\"20\" fill=\"#5A0B33\" opacity=\".22\"/><g transform=\"translate(0 -60)\"><path d=\"M405 470Q330 540 345 640\" stroke=\"%D%\" stroke-width=\"34\" stroke-linecap=\"round\" fill=\"none\"/><path d=\"M500 470Q580 540 560 640\" stroke=\"%D%\" stroke-width=\"34\" stroke-linecap=\"round\" fill=\"none\"/><path d=\"M275 670Q275 628 325.0 626Q375 628 375 670Z\" fill=\"%S%\"/><rect x=\"267\" y=\"660\" width=\"116\" height=\"16\" rx=\"8\" fill=\"#fff\" stroke=\"%SD%\" stroke-width=\"4\"/><path d=\"M316.0 642h18\" stroke=\"#fff\" stroke-width=\"4\" stroke-linecap=\"round\"/><path d=\"M530 670Q530 628 580.0 626Q630 628 630 670Z\" fill=\"%S%\"/><rect x=\"522\" y=\"660\" width=\"116\" height=\"16\" rx=\"8\" fill=\"#fff\" stroke=\"%SD%\" stroke-width=\"4\"/><path d=\"M571.0 642h18\" stroke=\"#fff\" stroke-width=\"4\" stroke-linecap=\"round\"/><path d=\"M250 380Q180 330 170 220\" stroke=\"%D%\" stroke-width=\"34\" stroke-linecap=\"round\" fill=\"none\"/><path d=\"M655 380Q725 330 740 220\" stroke=\"%D%\" stroke-width=\"34\" stroke-linecap=\"round\" fill=\"none\"/><circle cx=\"168\" cy=\"205\" r=\"27\" fill=\"%D%\"/>%HELD%<circle cx=\"742\" cy=\"205\" r=\"27\" fill=\"%D%\"/><path d=\"M685 352 Q731 410 648 441 Q636 502 548 502 Q492 559 417 515 Q330 536 296 477 Q201 464 225 398 Q164 352 225 306 Q203 241 296 227 Q326 162 417 189 Q490 155 548 202 Q644 195 648 263 Q727 295 685 352 Z\" fill=\"%D%\"/><path d=\"M685 330 Q731 388 648 419 Q636 480 548 480 Q492 537 417 493 Q330 514 296 455 Q201 442 225 376 Q164 330 225 284 Q203 219 296 205 Q326 140 417 167 Q490 133 548 180 Q644 173 648 241 Q727 273 685 330 Z\" fill=\"%B%\"/><path d=\"M606 415Q603 454 547 451 M405 465Q351 482 334 442 M308 427Q245 422 266 380 M266 280Q247 238 308 233 M439 192Q483 168 516 199 M625 265Q678 283 647 318 M520 230q22-16 44 0 M600 300q-14 22 4 42 M300 400q16 22 42 12 M560 430q26 6 42-16 M400 470q24 14 52 2q22-10 44 4 M400 215q20-18 46-4\" stroke=\"%F%\" stroke-width=\"8\" stroke-linecap=\"round\" fill=\"none\"/><path d=\"M470 105L430 175H462L442 235L505 150H470L492 105Z\" fill=\"#FFC93C\" stroke=\"#F5A623\" stroke-width=\"6\" stroke-linejoin=\"round\"/>%GLB%<ellipse cx=\"402\" cy=\"332\" rx=\"14\" ry=\"18\" fill=\"#1E2A4A\"/><ellipse cx=\"508\" cy=\"332\" rx=\"14\" ry=\"18\" fill=\"#1E2A4A\"/><circle cx=\"407\" cy=\"325\" r=\"5\" fill=\"#fff\"/><circle cx=\"513\" cy=\"325\" r=\"5\" fill=\"#fff\"/><g fill=\"%C%\" opacity=\".85\"><ellipse cx=\"362\" cy=\"395\" rx=\"20\" ry=\"11\"/><ellipse cx=\"548\" cy=\"395\" rx=\"20\" ry=\"11\"/></g><path d=\"M420 388Q455 445 490 388Z\" fill=\"#1E2A4A\"/><path d=\"M436 412Q455 428 474 412Q455 420 436 412Z\" fill=\"#FF6F91\"/>%GLA%%HAT%</g><g stroke=\"#fff\" stroke-width=\"8\" stroke-linecap=\"round\" opacity=\".8\"><path d=\"M330 690L320 740\"/><path d=\"M455 690V750\"/><path d=\"M580 690L590 740\"/></g>"}, "reading": {"hand": null, "s": "<ellipse cx=\"452\" cy=\"812\" rx=\"190\" ry=\"20\" fill=\"#5A0B33\" opacity=\".22\"/><path d=\"M405 470L370 762\" stroke=\"%D%\" stroke-width=\"34\" stroke-linecap=\"round\" fill=\"none\"/><path d=\"M500 470L535 762\" stroke=\"%D%\" stroke-width=\"34\" stroke-linecap=\"round\" fill=\"none\"/><path d=\"M300 792Q300 750 350.0 748Q400 750 400 792Z\" fill=\"%S%\"/><rect x=\"292\" y=\"782\" width=\"116\" height=\"16\" rx=\"8\" fill=\"#fff\" stroke=\"%SD%\" stroke-width=\"4\"/><path d=\"M341.0 764h18\" stroke=\"#fff\" stroke-width=\"4\" stroke-linecap=\"round\"/><path d=\"M505 792Q505 750 555.0 748Q605 750 605 792Z\" fill=\"%S%\"/><rect x=\"497\" y=\"782\" width=\"116\" height=\"16\" rx=\"8\" fill=\"#fff\" stroke=\"%SD%\" stroke-width=\"4\"/><path d=\"M546.0 764h18\" stroke=\"#fff\" stroke-width=\"4\" stroke-linecap=\"round\"/><path d=\"M685 352 Q731 410 648 441 Q636 502 548 502 Q492 559 417 515 Q330 536 296 477 Q201 464 225 398 Q164 352 225 306 Q203 241 296 227 Q326 162 417 189 Q490 155 548 202 Q644 195 648 263 Q727 295 685 352 Z\" fill=\"%D%\"/><path d=\"M685 330 Q731 388 648 419 Q636 480 548 480 Q492 537 417 493 Q330 514 296 455 Q201 442 225 376 Q164 330 225 284 Q203 219 296 205 Q326 140 417 167 Q490 133 548 180 Q644 173 648 241 Q727 273 685 330 Z\" fill=\"%B%\"/><path d=\"M606 415Q603 454 547 451 M405 465Q351 482 334 442 M308 427Q245 422 266 380 M266 280Q247 238 308 233 M439 192Q483 168 516 199 M625 265Q678 283 647 318 M520 230q22-16 44 0 M600 300q-14 22 4 42 M300 400q16 22 42 12 M560 430q26 6 42-16 M400 470q24 14 52 2q22-10 44 4 M400 215q20-18 46-4\" stroke=\"%F%\" stroke-width=\"8\" stroke-linecap=\"round\" fill=\"none\"/><path d=\"M470 105L430 175H462L442 235L505 150H470L492 105Z\" fill=\"#FFC93C\" stroke=\"#F5A623\" stroke-width=\"6\" stroke-linejoin=\"round\"/>%GLB%<ellipse cx=\"402\" cy=\"340\" rx=\"14\" ry=\"18\" fill=\"#1E2A4A\"/><ellipse cx=\"508\" cy=\"340\" rx=\"14\" ry=\"18\" fill=\"#1E2A4A\"/><circle cx=\"407\" cy=\"333\" r=\"5\" fill=\"#fff\"/><circle cx=\"513\" cy=\"333\" r=\"5\" fill=\"#fff\"/><g fill=\"%C%\" opacity=\".85\"><ellipse cx=\"362\" cy=\"395\" rx=\"20\" ry=\"11\"/><ellipse cx=\"548\" cy=\"395\" rx=\"20\" ry=\"11\"/></g><ellipse cx=\"455\" cy=\"402\" rx=\"14\" ry=\"16\" fill=\"#1E2A4A\"/>%GLA%%HAT%<path d=\"M250 420Q240 520 335 525\" stroke=\"%D%\" stroke-width=\"34\" stroke-linecap=\"round\" fill=\"none\"/><path d=\"M660 420Q670 520 575 525\" stroke=\"%D%\" stroke-width=\"34\" stroke-linecap=\"round\" fill=\"none\"/><path d=\"M455 470Q400 445 335 460V580Q400 565 455 590Z\" fill=\"#fff\" stroke=\"%GC%\" stroke-width=\"8\" stroke-linejoin=\"round\"/><path d=\"M455 470Q510 445 575 460V580Q510 565 455 590Z\" fill=\"#fff\" stroke=\"%GC%\" stroke-width=\"8\" stroke-linejoin=\"round\"/><g stroke=\"#F3B6CF\" stroke-width=\"5\" stroke-linecap=\"round\"><path d=\"M355 490Q400 480 435 492\"/><path d=\"M355 515Q400 505 435 517\"/><path d=\"M475 492Q510 480 555 490\"/><path d=\"M475 517Q510 505 555 515\"/></g><circle cx=\"340\" cy=\"525\" r=\"27\" fill=\"%D%\"/><circle cx=\"570\" cy=\"525\" r=\"27\" fill=\"%D%\"/>"}, "head": {"hand": null, "s": "<path d=\"M685 352 Q731 410 648 441 Q636 502 548 502 Q492 559 417 515 Q330 536 296 477 Q201 464 225 398 Q164 352 225 306 Q203 241 296 227 Q326 162 417 189 Q490 155 548 202 Q644 195 648 263 Q727 295 685 352 Z\" fill=\"%D%\"/><path d=\"M685 330 Q731 388 648 419 Q636 480 548 480 Q492 537 417 493 Q330 514 296 455 Q201 442 225 376 Q164 330 225 284 Q203 219 296 205 Q326 140 417 167 Q490 133 548 180 Q644 173 648 241 Q727 273 685 330 Z\" fill=\"%B%\"/><path d=\"M606 415Q603 454 547 451 M405 465Q351 482 334 442 M308 427Q245 422 266 380 M266 280Q247 238 308 233 M439 192Q483 168 516 199 M625 265Q678 283 647 318 M520 230q22-16 44 0 M600 300q-14 22 4 42 M300 400q16 22 42 12 M560 430q26 6 42-16 M400 470q24 14 52 2q22-10 44 4 M400 215q20-18 46-4\" stroke=\"%F%\" stroke-width=\"8\" stroke-linecap=\"round\" fill=\"none\"/><path d=\"M470 105L430 175H462L442 235L505 150H470L492 105Z\" fill=\"#FFC93C\" stroke=\"#F5A623\" stroke-width=\"6\" stroke-linejoin=\"round\"/>%GLB%<ellipse cx=\"402\" cy=\"332\" rx=\"14\" ry=\"18\" fill=\"#1E2A4A\"/><ellipse cx=\"508\" cy=\"332\" rx=\"14\" ry=\"18\" fill=\"#1E2A4A\"/><circle cx=\"407\" cy=\"325\" r=\"5\" fill=\"#fff\"/><circle cx=\"513\" cy=\"325\" r=\"5\" fill=\"#fff\"/><g fill=\"%C%\" opacity=\".85\"><ellipse cx=\"362\" cy=\"395\" rx=\"20\" ry=\"11\"/><ellipse cx=\"548\" cy=\"395\" rx=\"20\" ry=\"11\"/></g><path d=\"M427 390Q455 420 483 390Z\" fill=\"#1E2A4A\"/><path d=\"M442 403Q455 414 468 403Q455 409 442 403Z\" fill=\"#FF6F91\"/>%GLA%%HAT%"}};
+/* ================= v3: character system ================= */
+const CPAL = {
+  pink: ['#FF8CC6', '#E9649F', '#C94683', '#FF8A1F', '#D96A05', '#F0507F'],
+  blue: ['#5DB8FF', '#2E8FE0', '#1F6FC0', '#7ED957', '#56B034', '#FF8FB1'],
+  purple: ['#A57BFF', '#7B4FE0', '#5E36C2', '#FF6F91', '#D94F73', '#FF8FB1'],
+  teal: ['#45D3CB', '#20A9A1', '#147F79', '#FFC93C', '#E0A21A', '#FF8FB1'],
+  green: ['#5EDC72', '#2FB54A', '#1F8F37', '#4062FF', '#2A45C9', '#FF8FB1'],
+  orange: ['#FFAE57', '#F08A1E', '#C96E0E', '#7B5FEA', '#5A43C9', '#FF6F91'],
+  bronze: ['#E6A877', '#C7834F', '#9C6238', '#7A4A2C', '#5A3520', '#F08A6A'],
+  silver: ['#DCE3EB', '#AEB9C6', '#7F8C9D', '#5B9BFF', '#3772E0', '#FF9FBD'],
+  gold: ['#FFD54F', '#E9B520', '#B98A08', '#C94683', '#A3346A', '#FF8F6B'],
+  galaxy: ['#7457E0', '#4B36A8', '#2E2160', '#FF6F91', '#D94F73', '#FF8FB1']
+};
+const GLASSES = {
+  red: { name: 'Classic red', shape: 'round', c: '#E53935', price: 0 },
+  blue: { name: 'Round blue', shape: 'round', c: '#2E8FE0', price: 150 },
+  square: { name: 'Square purple', shape: 'square', c: '#7B4FE0', price: 250 },
+  heart: { name: 'Heart pink', shape: 'heart', c: '#FF4F9A', price: 300 },
+  big: { name: 'Big green', shape: 'big', c: '#2FB54A', price: 350 },
+  star: { name: 'Star gold', shape: 'star', c: '#F5A623', price: 450 },
+  shades: { name: 'Cool shades', shape: 'shades', c: '#2B2340', price: 500 }
+};
+const POSES = { classic: { name: 'Classic', price: 0 }, reading: { name: 'Bookworm', price: 250 }, wave: { name: 'Hello wave', price: 300 }, jump: { name: 'Happy jump', price: 500 } };
+const HELD = { wand: { name: 'Star wand', price: 0 }, balloon: { name: 'Balloon', price: 200 }, icecream: { name: 'Ice cream', price: 300 }, pencil: { name: 'Magic pencil', price: 350 }, trophy: { name: 'Trophy', price: 600 }, rocket: { name: 'Rocket', price: 900 } };
+function starD(cx, cy, r, k = .45) { let p = []; for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * k : r; p.push((cx + rr * Math.cos(a)).toFixed(1) + ' ' + (cy + rr * Math.sin(a)).toFixed(1)); } return 'M' + p.join('L') + 'Z'; }
+function heartD(cx, cy, s) { return `M${cx} ${cy + 34 * s}C${cx - 62 * s} ${cy - 4 * s} ${cx - 40 * s} ${cy - 56 * s} ${cx} ${cy - 24 * s}C${cx + 40 * s} ${cy - 56 * s} ${cx + 62 * s} ${cy - 4 * s} ${cx} ${cy + 34 * s}Z`; }
+function glassesSvg(id) {
+  const G = GLASSES[id]; if (!G) return ['', ''];
+  const c = G.c, L = 398, R = 512, Y = 330; let lens = '', hw = 46, after = '';
+  if (G.shape === 'round') lens = `<circle cx="${L}" cy="${Y}" r="46"/><circle cx="${R}" cy="${Y}" r="46"/>`;
+  else if (G.shape === 'big') { hw = 54; lens = `<circle cx="${L - 4}" cy="${Y}" r="54"/><circle cx="${R + 4}" cy="${Y}" r="54"/>`; }
+  else if (G.shape === 'square') { hw = 48; lens = `<rect x="${L - 48}" y="${Y - 40}" width="96" height="80" rx="18"/><rect x="${R - 48}" y="${Y - 40}" width="96" height="80" rx="18"/>`; }
+  else if (G.shape === 'heart') { hw = 50; lens = `<path d="${heartD(L, Y, 1.15)}"/><path d="${heartD(R, Y, 1.15)}"/>`; }
+  else if (G.shape === 'star') { hw = 50; lens = `<path d="${starD(L, Y + 4, 60, .62)}"/><path d="${starD(R, Y + 4, 60, .62)}"/>`; }
+  const sw = G.shape === 'big' ? 13 : 10;
+  const frame = (fill, op) => `<g stroke="${c}" stroke-width="${sw}" stroke-linejoin="round" fill="${fill}" fill-opacity="${op}">${lens}</g>`;
+  const arms = `<g stroke="${c}" stroke-width="${sw}" stroke-linecap="round" fill="none"><path d="M${L + hw - 2} 325Q455 312 ${R - hw + 2} 325"/><path d="M${L - hw - (G.shape === 'big' ? 4 : 0)} 322L285 308"/></g>`;
+  if (G.shape === 'shades') {
+    const sh = `<g fill="#2B2340"><rect x="${L - 52}" y="${Y - 34}" width="104" height="72" rx="30"/><rect x="${R - 52}" y="${Y - 34}" width="104" height="72" rx="30"/></g><g fill="#fff" opacity=".35"><rect x="${L - 36}" y="${Y - 22}" width="34" height="12" rx="6"/><rect x="${R - 36}" y="${Y - 22}" width="34" height="12" rx="6"/></g>`;
+    return ['', sh + `<g stroke="#2B2340" stroke-width="10" stroke-linecap="round" fill="none"><path d="M${L + 50} 322Q455 310 ${R - 50} 322"/><path d="M${L - 52} 318L285 306"/></g>`];
+  }
+  return [frame('#fff', .22) + arms, ''];
+}
+let _hatImg = {};
+function hatSvg(h) {
+  if (!h) return '';
+  if (h === 'party') return `<image href="${ASSET.hat_party}" x="420" y="-92" width="220" height="252" transform="rotate(14 530 40)"/>`;
+  if (h === 'crown') return `<image href="${ASSET.hat_crown}" x="305" y="-20" width="290" height="222"/>`;
+  if (h === 'wizard') return `<g transform="translate(284 -150) scale(5.55)"><path d="M30 2C36 16 42 30 46 44H14C18 30 24 16 30 2z" fill="#A78BFA"/><path d="${starPts(31, 24, 7)}" fill="#FFC93C"/><ellipse cx="30" cy="46" rx="29" ry="8" fill="#8B6CF0"/></g>`;
+  return '';
+}
+function heldSvg(k, hx, hy) {
+  if (!k) return ''; const sc = k === 'wand' ? 1.1 : 1.45;
+  return `<g transform="translate(${hx} ${hy}) scale(${sc}) translate(${-hx} ${-hy})">${heldRaw(k, hx, hy)}</g>`;
+}
+function heldRaw(k, hx, hy) {
+  if (k === 'wand') return `<path d="M${hx + 5} ${hy + 5}L${hx + 25} ${hy - 95}" stroke="#F5A623" stroke-width="10" stroke-linecap="round"/><path d="${starD(hx + 28, hy - 112, 52)}" fill="#FFC93C" stroke="#F5A623" stroke-width="6" stroke-linejoin="round"/>`;
+  if (k === 'balloon') return `<path d="M${hx} ${hy}Q${hx + 30} ${hy - 70} ${hx + 18} ${hy - 150}" stroke="#7A6A7E" stroke-width="4" fill="none"/><ellipse cx="${hx + 22}" cy="${hy - 215}" rx="56" ry="66" fill="#FF5A7A"/><path d="M${hx + 12} ${hy - 150}l10-12 10 12z" fill="#E0405F"/><ellipse cx="${hx + 2}" cy="${hy - 240}" rx="14" ry="22" fill="#fff" opacity=".45"/>`;
+  if (k === 'icecream') return `<path d="M${hx - 30} ${hy - 32}L${hx + 30} ${hy - 32}L${hx} ${hy + 24}Z" fill="#F2B661" stroke="#D18A2E" stroke-width="4" stroke-linejoin="round"/><path d="M${hx - 18} ${hy - 22}l30 30M${hx + 2} ${hy - 30}l18 18" stroke="#D18A2E" stroke-width="3"/><circle cx="${hx}" cy="${hy - 58}" r="34" fill="#FF9FC6"/><circle cx="${hx}" cy="${hy - 104}" r="28" fill="#9BE7C4"/><circle cx="${hx + 6}" cy="${hy - 138}" r="10" fill="#E53935"/>`;
+  if (k === 'pencil') return `<g transform="rotate(20 ${hx} ${hy})"><rect x="${hx - 14}" y="${hy - 170}" width="28" height="170" rx="4" fill="#FFC93C" stroke="#E0A21A" stroke-width="4"/><rect x="${hx - 14}" y="${hy - 186}" width="28" height="22" rx="6" fill="#FF8FB1"/><path d="M${hx - 14} ${hy}L${hx + 14} ${hy}L${hx} ${hy + 30}Z" fill="#F7D9B0"/><path d="M${hx - 5} ${hy + 18}L${hx + 5} ${hy + 18}L${hx} ${hy + 30}Z" fill="#3A2340"/></g><path d="${starD(hx + 70, hy - 160, 16)}" fill="#FFC93C"/>`;
+  if (k === 'trophy') return `<rect x="${hx - 12}" y="${hy - 56}" width="24" height="44" fill="#E9B520"/><rect x="${hx - 36}" y="${hy - 20}" width="72" height="20" rx="6" fill="#C2900E"/><path d="M${hx - 50} ${hy - 150}H${hx + 50}V${hy - 112}A50 50 0 0 1 ${hx - 50} ${hy - 112}Z" fill="#FFD54F" stroke="#E9B520" stroke-width="5"/><path d="M${hx - 50} ${hy - 138}h-20a22 22 0 0 0 22 30M${hx + 50} ${hy - 138}h20a22 22 0 0 1-22 30" stroke="#E9B520" stroke-width="8" fill="none"/><path d="${starD(hx, hy - 118, 18)}" fill="#fff" opacity=".8"/>`;
+  if (k === 'rocket') return `<g transform="rotate(25 ${hx} ${hy - 80})"><path d="M${hx} ${hy - 200}C${hx + 34} ${hy - 170} ${hx + 34} ${hy - 90} ${hx + 26} ${hy - 50}H${hx - 26}C${hx - 34} ${hy - 90} ${hx - 34} ${hy - 170} ${hx} ${hy - 200}Z" fill="#fff" stroke="#7B5FEA" stroke-width="6"/><circle cx="${hx}" cy="${hy - 130}" r="14" fill="#5DB8FF" stroke="#7B5FEA" stroke-width="5"/><path d="M${hx - 26} ${hy - 80}l-26 34h26zM${hx + 26} ${hy - 80}l26 34h-26z" fill="#FF6F91"/><path d="M${hx - 14} ${hy - 50}Q${hx} ${hy - 6} ${hx + 14} ${hy - 50}Z" fill="#FFC93C"/></g>`;
+  return '';
+}
+function look(o = {}) {
+  const pr = S.profile || {};
+  return { col: o.col || pr.avatar || 'pink', glasses: o.glasses !== undefined ? o.glasses : (S.glasses === undefined ? 'red' : S.glasses), pose: o.pose || S.pose || 'classic',
+    held: o.held !== undefined ? o.held : (S.held === undefined ? 'wand' : S.held), hat: o.hat !== undefined ? o.hat : S.hat };
+}
+const _cc = {};
+function charSvg(o = {}, head = false) {
+  const L = look(o); const key = JSON.stringify(L) + head; if (_cc[key]) return _cc[key];
+  const P = CPOSE[head ? 'head' : L.pose] || CPOSE.classic; const pal = CPAL[L.col] || CPAL.pink;
+  const [glb, gla] = glassesSvg(L.glasses);
+  let s = P.s.replace(/%B%/g, pal[0]).replace(/%D%/g, pal[1]).replace(/%F%/g, pal[2]).replace(/%SD%/g, pal[4]).replace(/%S%/g, pal[3]).replace(/%C%/g, pal[5])
+    .replace(/%GC%/g, (GLASSES[L.glasses] || GLASSES.red).c).replace('%GLB%', glb).replace('%GLA%', gla).replace('%HAT%', hatSvg(L.hat))
+    .replace('%HELD%', P.hand ? heldSvg(L.held, P.hand[0], P.hand[1]) : '');
+  const P2 = CPOSE[L.pose] || CPOSE.classic; const dyJ = L.pose === 'jump' ? -60 : 0;
+  let top = -40; if (L.hat) top = Math.min(top, (L.hat === 'wizard' ? -170 : -110) + (head ? 0 : dyJ));
+  if (!head && P2.hand && L.held && L.held !== 'wand') top = Math.min(top, P2.hand[1] + dyJ - (L.held === 'balloon' ? 440 : 300));
+  const vb = head ? `140 ${Math.min(-40, top)} 620 ${620 - Math.min(0, top + 40)}` : `120 ${top} 780 ${880 - (top + 40)}`;
+  if (L.col === 'galaxy') { const dy = L.pose === 'jump' && !head ? -60 : 0; s += `<g fill="#FFE38F" transform="translate(0 ${dy})"><path d="${starD(300, 280, 12)}"/><path d="${starD(590, 230, 9)}"/><path d="${starD(620, 430, 11)}"/></g>`; }
+  return (_cc[key] = `<svg viewBox="${vb}" aria-hidden="true" style="display:block;width:100%;height:auto;overflow:visible">${s}</svg>`);
+}
+function myChar(style = '', o = {}) { return `<span class="mchar" style="display:block;margin-left:auto;margin-right:auto;${style}">${charSvg(o)}</span>`; }
+function myHead(o = {}) { return `<span class="mhead">${charSvg(o, true)}</span>`; }
+function avatar(size, opts = {}) {
+  const a = opts.av || (S.profile && S.profile.avatar) || 'pink';
+  return `<div class="av ${opts.ring ? 'ring' : ''}" style="width:${size}px;height:${size}px;background:${AVBG[a]}"><span class="mhead" style="width:86%;margin-top:6%">${charSvg({ col: a, hat: opts.hat }, true)}</span></div>`;
+}
+/* ================= v3: level rewards ================= */
+function lvReward(lv) { return lv <= 5 ? 20 : lv <= 10 ? 30 : lv <= 15 ? 40 : 50; }
+const TIERS = [['Easy', 1, 5], ['Medium', 6, 10], ['Hard', 11, 15], ['Expert', 16, 20]];
+function finishLevel(g, lv, stars, secs, stat, statLabel, msg) {
+  const st = S[g]; const first = !st.stars[lv]; const wasNew = lv === st.unlocked && lv < 20;
+  st.stars[lv] = Math.max(st.stars[lv] || 0, stars); if (wasNew) st.unlocked++;
+  const reward = first ? lvReward(lv) : 5; const bonus = first && stars === 3 ? 5 : 0; const before = S.sparks;
+  addSparks(reward + bonus, g); recordGame(g, secs, true);
+  go('result', { g, lv, stars, secs, stat, statLabel, reward, bonus, before, unlockedNext: wasNew, msg }, { replace: true });
+}
+SCREENS.retry = (r) => ({
+  cls: 'purple', html: `${statusBar(true)}<div class="body" style="text-align:center;display:flex;flex-direction:column;padding-top:40px">
+    <div class="f" style="color:var(--yel);font-size:17px">So close, ${S.profile.name}!</div><div class="h1" style="color:#fff;font-size:32px">Try again!</div>
+    <div class="t" style="color:rgba(255,255,255,.85);margin-top:8px;font-size:15px">${r.why}</div>
+    ${myChar('width:190px;margin:24px auto 0;animation:float 3s ease-in-out infinite', { pose: 'classic' })}
+    <div style="flex:1;min-height:16px"></div>${btn('Try again', 'b-yel', 'again', '', icon('restart', 20, '#3A2340'))}<div style="height:14px"></div>${btn('All levels', 'b-ghost sm', 'lv')}<div style="height:28px"></div>
+  </div><div class="hind w"></div>`,
+  mount() { sfx('no'); act('again', () => go(playScreen(r.g), { lv: r.lv }, { replace: true })); act('lv', () => backTo('levels')); }
+});
+
 /* ================= splash ================= */
 SCREENS.splash = () => ({
   cls: '', html: `<img alt="MindSpark" src="${ASSET.splash1}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" id="sp1">`,
@@ -568,7 +691,7 @@ SCREENS.welcome = () => ({
     <div style="position:relative;width:300px;height:290px;margin-top:10px;display:grid;place-items:center">
       <div style="position:absolute;width:268px;height:268px;border-radius:50%;background:rgba(255,232,154,.55)"></div>
       <div style="position:absolute;width:208px;height:208px;border-radius:50%;background:rgba(255,255,255,.5)"></div>
-      <img alt="MindSpark mascot" src="${ASSET.mascot}" style="position:relative;width:288px;animation:float 3.2s ease-in-out infinite">
+      ${myChar('position:relative;width:288px;animation:float 3.2s ease-in-out infinite')}
     </div>
     <div class="h1" style="font-size:calc(32px*var(--k));margin-top:6px">Hi there, friend!</div>
     <p class="t" style="font-size:calc(16px*var(--k));margin:10px 0 0;line-height:1.4">Play fun brain games, collect sparks<br>and unlock new adventures every day.</p>
@@ -589,11 +712,11 @@ function profileForm(edit) {
     <div class="body" style="padding-bottom:16px">
       <div style="display:flex;justify-content:center;position:relative;margin:2px 0 6px">
         <span style="position:absolute;left:84px;top:6px">${spark(16, '#FF8A1F')}</span><span style="position:absolute;right:86px;top:84px">${spark(20)}</span>
-        <div id="pv">${avatar(108, { av: sel, ring: true })}</div>
+        <div id="pv" style="width:120px">${myChar('', { col: sel })}</div>
       </div>
       <div class="sec" style="margin-top:18px"><span class="h2">Choose your avatar</span><span class="ts" style="color:var(--mag)">Tap to pick</span></div>
       <div class="grid3" id="avg">${list.map(a => `<button class="tile" data-act="pick" data-a="${a}" aria-label="${a} avatar" style="padding:6px;height:96px;${a === sel ? 'box-shadow:inset 0 0 0 3px var(--mag),0 4px 12px rgba(58,35,64,.08)' : ''}">
-        <div style="height:100%;border-radius:18px;background:${AVBG[a]};display:grid;place-items:center"><img alt="" src="${['bronze', 'silver', 'gold', 'galaxy'].includes(a) ? ASSET['av_' + a] : ASSET['head_' + a]}" style="width:${['bronze', 'silver', 'gold', 'galaxy'].includes(a) ? 64 : 80}%"></div>
+        <div style="height:100%;border-radius:18px;background:${AVBG[a]};display:grid;place-items:center"><span class="mhead" style="width:82%">${charSvg({ col: a }, true)}</span></div>
         ${a === sel ? `<span style="position:absolute;right:-4px;top:-4px;width:26px;height:26px;border-radius:50%;background:var(--mag);border:3px solid #fff;display:grid;place-items:center">${icon('check', 14, '#fff', 3.4)}</span>` : ''}</button>`).join('')}</div>
       <div class="sec" style="margin-top:26px"><span class="h2">Your nickname</span><span class="ts" id="cnt">${name.length}/12</span></div>
       <label class="input"><input id="nick" maxlength="12" placeholder="Type your nickname" value="${name.replace(/"/g, '')}" autocomplete="off" aria-label="Your nickname">
@@ -608,7 +731,7 @@ function profileForm(edit) {
       const upd = () => { name = inp.value.replace(/[^\p{L}\p{N} _-]/gu, '').slice(0, 12); if (inp.value !== name) inp.value = name; root.querySelector('#cnt').textContent = name.length + '/12'; b.disabled = !name.trim(); root.querySelector('#clr').style.display = name ? 'grid' : 'none'; };
       inp.addEventListener('input', upd);
       act('clear', () => { inp.value = ''; upd(); inp.focus(); });
-      act('pick', t => { sfx('tap'); sel = t.dataset.a; root.querySelector('#pv').innerHTML = avatar(108, { av: sel, ring: true });
+      act('pick', t => { sfx('tap'); sel = t.dataset.a; root.querySelector('#pv').innerHTML = myChar('', { col: sel });
         root.querySelectorAll('#avg .tile').forEach(x => { const on = x.dataset.a === sel; x.style.boxShadow = on ? 'inset 0 0 0 3px var(--mag),0 4px 12px rgba(58,35,64,.08)' : ''; x.querySelector('span')?.remove();
           if (on) x.insertAdjacentHTML('beforeend', `<span style="position:absolute;right:-4px;top:-4px;width:26px;height:26px;border-radius:50%;background:var(--mag);border:3px solid #fff;display:grid;place-items:center">${icon('check', 14, '#fff', 3.4)}</span>`); }); });
       act('done', () => {
@@ -652,7 +775,7 @@ SCREENS.home = (p) => {
         <div class="f" style="font-size:calc(21px*var(--k));line-height:1.2;margin-top:10px">${doneDaily ? 'Done for today!<br>Great job!' : 'Train your brain<br>in 5 minutes!'}</div>
         <div class="row" style="margin-top:12px;gap:10px"><span class="chip f" style="background:var(--yel);color:#3A2340;height:26px;font-size:12px">${spark(13, '#fff')} ${doneDaily ? 'Come back tomorrow' : '+50 sparks'}</span>
         ${doneDaily ? '' : `<span style="width:28px;height:28px;border-radius:50%;background:#fff;display:grid;place-items:center">${icon('play', 12, '#7D62E9')}</span>`}</div>
-        <img alt="" src="${ASSET.mascot}" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);width:124px">
+        ${myChar('position:absolute;right:8px;top:50%;transform:translateY(-50%);width:124px')}
       </button>
       <div class="sec"><span class="h2">Let’s play</span><button class="ts" style="color:var(--mag)" data-tab="library">See all</button></div>
       <div class="grid2">
@@ -688,11 +811,11 @@ SCREENS.profile = () => ({
   html: `<div class="deco"></div>${statusBar()}${header({ title: 'My Profile' })}
   <div class="body">
     <div class="card" style="overflow:hidden;text-align:center;padding-bottom:22px">
-      <div style="height:100px;background:var(--cyan);position:relative"><span style="position:absolute;left:28px;top:26px">${spark(20)}</span><span style="position:absolute;right:30px;top:52px">${spark(14, '#C94683')}</span></div>
-      <div style="display:flex;justify-content:center;margin-top:-62px">${avatar(136, { ring: true })}</div>
+      <div style="height:150px;background:var(--cyan);position:relative"><span style="position:absolute;left:28px;top:26px">${spark(20)}</span><span style="position:absolute;right:30px;top:52px">${spark(14, '#C94683')}</span></div>
+      <div style="display:flex;justify-content:center;margin-top:-150px;position:relative;z-index:2"><div style="width:170px">${myChar()}</div></div>
       <div class="h1" style="font-size:calc(34px*var(--k));margin-top:16px">${S.profile.name}</div>
       <div class="t" style="margin-top:4px">${title()}</div>
-      <div style="width:190px;margin:18px auto 0">${btn('Edit Profile', 'b-mag sm', '', 'data-go="edit" style="height:46px;font-size:17px"', icon('pencil', 18, '#fff'))}</div>
+      <div class="row" style="justify-content:center;gap:10px;margin-top:18px"><div style="width:150px">${btn('Change look', 'b-yel sm', '', 'data-tab="rewards" style="height:46px;font-size:16px"')}</div><div style="width:150px">${btn('Edit Profile', 'b-mag sm', '', 'data-go="edit" style="height:46px;font-size:17px"', icon('pencil', 18, '#fff'))}</div></div>
     </div>
     <div class="card" style="margin-top:20px">
       <button class="lrow" data-go="settings"><span class="ico" style="background:var(--lav)">${icon('gear', 22, '#7D62E9')}</span><span style="flex:1"><div class="h3">Settings</div><div class="ts">Sounds, music and more</div></span>${icon('chev', 18, 'var(--muted)', 2.6)}</button>
@@ -707,6 +830,7 @@ SCREENS.settings = () => {
   return {
     html: `<div class="deco"></div>${statusBar()}${header({ back: true, title: 'Settings', pill: false })}
     <div class="body">
+      <div class="card row" style="padding:12px 16px;gap:14px;margin-bottom:18px"><div style="width:96px;flex:0 0 auto">${myChar()}</div><div style="flex:1"><div class="h3">${S.profile.name}</div><div class="ts" style="margin:2px 0 10px">Your MindSpark character</div>${btn('Change look', 'b-yel sm', '', 'data-tab="rewards" style="height:40px;font-size:15px"')}</div></div>
       <div class="h2" style="margin:4px 4px 10px;font-size:18px">Sounds</div>
       <div class="card">${T('sfx', 'Sound effects', 'Taps, cheers and pops', 'var(--pinkl)', 'speaker', '#C94683')}${T('music', 'Background music', 'Music while you play', 'var(--cyan)', 'note', '#1C94A6')}</div>
       <div class="h2" style="margin:22px 4px 10px;font-size:18px">Play</div>
@@ -736,7 +860,7 @@ SCREENS.help = () => ({
     </div>
     <div class="card" style="margin-top:16px;padding:18px">
       <div class="row"><span class="ico" style="background:var(--cream2)">${spark(22)}</span><div class="h3">How sparks work</div></div>
-      <p class="t" style="margin:12px 0 0;line-height:1.5">Finish a level to earn 20 sparks, or 5 if you play it again. The daily challenge gives 50 more. Spend sparks in Rewards on hats, avatars and themes, or unlock new games in the Game Library.</p>
+      <p class="t" style="margin:12px 0 0;line-height:1.5">Finish a level to earn 20 to 50 sparks (harder levels give more), plus 5 extra for 3 stars. Replays give 5. The daily challenge gives 50 more. Spend sparks in Rewards on hats, avatars and themes, or unlock new games in the Game Library.</p>
     </div>
     <div class="card" style="margin-top:16px;padding:18px">
       <div class="row"><span class="ico" style="background:var(--peach)"><img alt="" src="${ASSET.flame}" style="width:30px"></span><div class="h3">Keep your streak</div></div>
@@ -816,11 +940,14 @@ const DESIGNS = [
       { id: 'flag', d: 'M152 48L152 74L120 61Z', c: COL.teal, name: 'flag' }] }
 ];
 function design(lv) { return DESIGNS[(lv - 1) % 4]; }
-function memPairs(lv) { return lv === 1 ? 3 : lv === 2 ? 4 : lv <= 4 ? 6 : 8; }
+function memPairs(lv) { return lv <= 2 ? 3 : lv <= 5 ? 4 : lv <= 9 ? 6 : lv <= 14 ? 8 : 10; }
 const GAME = {
-  puzzle: { title: 'Word Search', sub: 'Find every hidden word', tag: 'FIND THE WORDS', tagc: '#1C94A6', bg: 'var(--cyan)', edge: '#8FDCEC', levelNote: 'Levels 7+ add slanted words', howBg: 'var(--cyan)', howCol: '#1C94A6', howSh: 'var(--cyand)' },
-  memory: { title: 'Memory', sub: 'Flip two cards, find a pair', tag: 'REMEMBER & MATCH', tagc: '#C94683', bg: 'var(--pinkl)', edge: '#FFB5D6', levelNote: 'More cards every level', howBg: 'var(--pinkl)', howCol: '#A3346A', howSh: 'var(--pinkm)' },
-  ballsort: { title: 'Ball Sort', sub: 'Sort colors, train your logic', tag: 'LOGIC & COLORS', tagc: '#6A4FD6', bg: 'var(--lav)', edge: '#D5C6FF', levelNote: 'More colors as you go', howBg: 'var(--lav)', howCol: '#6A4FD6', howSh: '#D5C6FF' }
+  puzzle: { title: 'Word Search', sub: 'Find every hidden word', bg: 'var(--cyan)', edge: '#8FDCEC', levelNote: 'Bigger grids, slanted and backwards words as you go.', howBg: 'var(--cyan)', howCol: '#1C94A6', howSh: 'var(--cyand)' },
+  memory: { title: 'Memory', sub: 'Flip two cards, find a pair', bg: 'var(--pinkl)', edge: '#FFB5D6', levelNote: 'More cards every few levels, and they flip back faster.', howBg: 'var(--pinkl)', howCol: '#A3346A', howSh: 'var(--pinkm)' },
+  ballsort: { title: 'Ball Sort', sub: 'Sort colors, train your logic', bg: 'var(--lav)', edge: '#D5C6FF', levelNote: 'More colors, then only one empty tube.', howBg: 'var(--lav)', howCol: '#6A4FD6', howSh: '#D5C6FF' },
+  mathdash: { title: 'Math Dash', sub: 'Add, subtract, multiply, divide', bg: 'var(--green)', edge: '#BDE8A3', levelNote: 'New signs, bigger numbers and less time.', howBg: 'var(--green)', howCol: '#2BAE6B', howSh: '#BDE8A3' },
+  blocks: { title: 'Count the Blocks', sub: 'Count every block', bg: 'var(--peach)', edge: '#FFCB98', levelNote: 'Taller stacks, hidden blocks and a timer.', howBg: 'var(--peach)', howCol: '#E0601A', howSh: '#FFCB98' },
+  matrix: { title: 'Memory Matrix', sub: 'Remember the pattern', bg: '#E5E9FF', edge: '#BFC8FF', levelNote: 'Bigger grids, more tiles, less time to look.', howBg: '#E5E9FF', howCol: '#3A5BE0', howSh: '#BFC8FF' }
 };
 function totalStars(g) { return Object.values(S[g].stars).reduce((a, b) => a + b, 0); }
 
@@ -829,21 +956,22 @@ SCREENS.levels = ({ g }) => {
   const G = GAME[g], st = S[g];
   if (!S.seenNew[g]) { S.seenNew[g] = true; save(); }
   const doneN = Object.keys(st.stars).length;
-  const tiles = Array.from({ length: 12 }, (_, i) => {
-    const n = i + 1;
-    if (st.stars[n] && n !== st.unlocked) return `<button class="lv4 done" data-act="lv" data-n="${n}" aria-label="Level ${n}, ${st.stars[n]} stars"><span class="f num">${n}</span><span class="row" style="gap:1px">${[0, 1, 2].map(k => starIcon(15, k < st.stars[n], '#D5C6FF')).join('')}</span></button>`;
-    if (n === st.unlocked) return `<button class="lv4 cur" data-act="lv" data-n="${n}" aria-label="Level ${n}, play"><span class="f num">${n}</span><span class="chip f" style="background:#fff;color:#3A2340;height:22px">${icon('play', 9, '#3A2340')} Play</span><img alt="" src="${ASSET.head_pink}" class="peek"></button>`;
-    return `<button class="lv4 lock" data-act="lockd" aria-label="Level ${n}, locked"><span class="f num">${n}</span>${icon('lock', 18, '#B9A98A', 2.6)}</button>`;
-  }).join('');
+  const tile = n => {
+    if (st.stars[n] && n !== st.unlocked) return `<button class="lv4 done" data-act="lv" data-n="${n}" aria-label="Level ${n}, ${st.stars[n]} stars"><span class="f num">${n}</span><span class="row" style="gap:0">${[0, 1, 2].map(k => starIcon(12, k < st.stars[n], '#D5C6FF')).join('')}</span></button>`;
+    if (n === st.unlocked) return `<button class="lv4 cur" data-act="lv" data-n="${n}" aria-label="Level ${n}, play"><span class="f num">${n}</span><span class="chip f" style="background:#fff;color:#3A2340;height:20px;padding:0 7px;font-size:10px">${icon('play', 8, '#3A2340')} Play</span><span class="peek">${myHead()}</span></button>`;
+    return `<button class="lv4 lock" data-act="lockd" aria-label="Level ${n}, locked"><span class="f num">${n}</span>${icon('lock', 16, '#B9A98A', 2.6)}</button>`;
+  };
+  const sections = TIERS.map(([name, a, z], ti) => `<div class="sec"><span class="h2">${name}</span><span class="chip f" style="background:var(--cream2);color:var(--ink)">${spark(11)} +${lvReward(a)} per level</span></div>
+      <div class="lvgrid">${Array.from({ length: z - a + 1 }, (_, i) => tile(a + i)).join('')}</div>`).join('');
   return {
     html: `<div class="deco"></div>${statusBar()}${header({ back: true, title: G.title })}
     <div class="body" style="padding-bottom:110px">
       <div class="lvhero"><div style="position:relative;z-index:1;max-width:205px"><div class="f" style="font-size:calc(22px*var(--k))">Choose a level</div><div class="ts" style="color:rgba(255,255,255,.85);margin-top:2px">${G.sub}</div>
-        <div class="bar" style="margin-top:12px;height:9px;background:rgba(255,255,255,.25)"><i style="width:${doneN / 12 * 100}%;background:var(--yel)"></i></div>
-        <div class="row" style="margin-top:10px;gap:8px"><span class="f" style="font-size:12px">${doneN} of 12 done</span><span class="chip f" style="background:rgba(255,255,255,.2);color:#fff">${starIcon(12)} ${totalStars(g)} / 36</span></div></div>
-        <div class="lvart">${gameArt(g, g === 'memory' ? 120 : 96)}</div></div>
-      <div class="sec"><span class="h2">Easy</span><span class="ts" style="color:var(--ink)">${G.levelNote}</span></div>
-      <div class="lvgrid">${tiles}</div>
+        <div class="bar" style="margin-top:12px;height:9px;background:rgba(255,255,255,.25)"><i style="width:${doneN / 20 * 100}%;background:var(--yel)"></i></div>
+        <div class="row" style="margin-top:10px;gap:8px"><span class="f" style="font-size:12px">${doneN} of 20 done</span><span class="chip f" style="background:rgba(255,255,255,.2);color:#fff">${starIcon(12)} ${totalStars(g)} / 60</span></div></div>
+        <div class="lvart" style="--as:${g === 'mathdash' ? .62 : 1}">${gameArt(g, g === 'memory' ? 120 : 96)}</div></div>
+      <p class="ts" style="margin:12px 4px 0">${G.levelNote} Harder levels give more sparks!</p>
+      ${sections}
     </div>
     <div class="lvfoot">${btn(`Play Level ${st.unlocked}`, 'b-yel', 'playcur', '', icon('play', 18, '#3A2340'))}</div>${nav('games')}`,
     mount() {
@@ -856,11 +984,18 @@ SCREENS.levels = ({ g }) => {
 
 /* ================= intro ================= */
 function introInfo(g, lv) {
-  if (g === 'puzzle') { const L = wsLevel(lv); return { title: `Find ${L.words.length} hidden words!`, sub: `Theme: ${L.theme} · ${L.n}×${L.n} letters`,
-    steps: [['var(--cyan)', 'hand', '#1C94A6', 'Swipe a word', L.diag ? 'Across, down or on a slant' : 'Slide across or down'], ['var(--cream2)', 'bulb', '#E8AE1A', 'Stuck? Tap Hint', 'It shows where a word starts'], ['var(--pinkl)', 'stars', '#C94683', 'Earn stars', 'Fewer hints = more stars']] }; }
-  if (g === 'ballsort') { const L = bsLevel(lv); return { title: 'Sort the balls by color!', sub: `${L.tubes} tubes · ${L.colors} colors`,
+  const T = TIERS.find(t => lv >= t[1] && lv <= t[2])[0];
+  if (g === 'puzzle') { const L = wsLevel(lv); return { T, title: `Find ${L.words.length} hidden words!`, sub: `Theme: ${L.theme} · ${L.n}×${L.n} letters`,
+    steps: [['var(--cyan)', 'hand', '#1C94A6', 'Swipe a word', L.rev ? 'Any direction, even backwards!' : L.diag ? 'Across, down or on a slant' : 'Slide across or down'], ['var(--cream2)', 'bulb', '#E8AE1A', 'Stuck? Tap Hint', 'It shows where a word starts'], ['var(--pinkl)', 'stars', '#C94683', 'Earn stars', 'Fewer hints = more stars']] }; }
+  if (g === 'ballsort') { const L = bsLevel(lv); return { T, title: 'Sort the balls by color!', sub: `${L.colors} colors · ${L.empty === 1 ? 'only 1 empty tube' : '2 empty tubes'}`,
     steps: [['var(--lav)', 'tap', '#7D62E9', 'Tap a tube', 'The top ball jumps up'], ['var(--cyan)', 'hand', '#1C94A6', 'Tap where it goes', 'Same color, or an empty tube'], ['var(--cream2)', 'stars', '#E8AE1A', 'Earn stars', 'Fewer moves = more stars']] }; }
-  const pairs = memPairs(lv); return { title: `Find the ${pairs} pairs!`, sub: pairs * 2 + ' cards',
+  if (g === 'mathdash') { const C = mathCfg(lv); return { T, title: 'Solve 10 sums in time!', sub: `${C.ops.join(' ')} · ${C.time} seconds`,
+    steps: [['var(--green)', 'math', '#2BAE6B', 'Read the sum', C.ops.length > 2 ? 'Watch which sign lights up' : 'Add or take away'], ['var(--cream2)', 'tap', '#E8AE1A', 'Tap the answer', 'Before the time bar runs out'], ['var(--pinkl)', 'stars', '#C94683', 'Pass with 6', '9 or more right = 3 stars']] }; }
+  if (g === 'blocks') { const C = blocksCfg(lv); return { T, title: 'Count all the blocks!', sub: `6 questions · up to ${C.hi} blocks`,
+    steps: [['var(--peach)', 'cards', '#E0601A', 'Look at the stack', lv >= 3 ? 'Some blocks hide underneath!' : 'Count each block'], ['var(--cream2)', 'tap', '#E8AE1A', 'Tap the number', lv > 5 ? 'Be quick, there’s a timer' : 'Take your time'], ['var(--pinkl)', 'stars', '#C94683', 'Pass with 4', 'All 6 right = 3 stars']] }; }
+  if (g === 'matrix') { const C = mxCfg(lv); return { T, title: 'Remember the pattern!', sub: `${C.n}×${C.n} grid · ${C.k} tiles · 3 rounds`,
+    steps: [['var(--lav)', 'help', '#3A5BE0', 'Watch the tiles', 'They light up for a moment'], ['var(--cyan)', 'tap', '#1C94A6', 'Tap the same tiles', 'From memory!'], ['var(--pinkl)', 'heart', '#C94683', 'Keep your hearts', 'No mistakes = 3 stars']] }; }
+  const pairs = memPairs(lv); return { T, title: `Find the ${pairs} pairs!`, sub: pairs * 2 + ' cards' + (lv >= 13 ? ' · cards flip back fast!' : ''),
     steps: [['var(--lav)', 'tap', '#7D62E9', 'Tap a card', 'It flips to show a picture'], ['var(--pinkl)', 'pair', '#C94683', 'Find its twin', 'Same picture? You keep the pair!'], ['var(--cream2)', 'stars', '#E8AE1A', 'Earn stars', 'Fewer moves = more stars']] };
 }
 SCREENS.intro = ({ g, lv }) => {
@@ -870,7 +1005,7 @@ SCREENS.intro = ({ g, lv }) => {
     <div class="body">
       <div style="background:${G.bg};border-radius:28px;height:196px;position:relative;overflow:hidden;padding:22px 20px;color:#3A2340">
         <div style="position:absolute;right:-40px;top:-40px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.3)"></div>
-        <span class="chip f" style="background:#fff;color:var(--mag);font-size:12px;height:26px;padding:0 14px">Level ${lv}</span>
+        <span class="chip f" style="background:#fff;color:var(--mag);font-size:12px;height:26px;padding:0 14px">Level ${lv} · ${I.T}</span>
         <div class="f" style="font-size:calc(24px*var(--k));line-height:1.15;margin-top:12px;max-width:180px;position:relative">${I.title}</div>
         <div class="ts" style="margin-top:8px;color:#6B5A70">${I.sub}</div>
         <div style="position:absolute;right:18px;top:50%;transform:translateY(-50%)">${gameArt(g, g === 'memory' ? 130 : 110)}</div>
@@ -878,7 +1013,7 @@ SCREENS.intro = ({ g, lv }) => {
       <div class="h2" style="margin:22px 4px 12px">How to play</div>
       <div class="card">${I.steps.map((s, i) => `<div class="lrow"><span class="ico" style="background:${s[0]};position:relative">${icon(s[1], 22, s[2])}<span class="f" style="position:absolute;right:-6px;top:-6px;width:18px;height:18px;border-radius:50%;background:#3A2340;color:#fff;font-size:11px;display:grid;place-items:center">${i + 1}</span></span><span style="flex:1"><div class="h3">${s[3]}</div><div class="ts">${s[4]}</div></span></div>`).join('')}</div>
       <div class="grid2" style="margin-top:16px">
-        <div style="background:var(--cream2);border-radius:20px;padding:12px 14px" class="row">${spark(26)}<div><div class="f" style="font-size:18px">+${first ? 20 : 5}</div><div class="ts">sparks</div></div></div>
+        <div style="background:var(--cream2);border-radius:20px;padding:12px 14px" class="row">${spark(26)}<div><div class="f" style="font-size:18px">+${first ? lvReward(lv) : 5}</div><div class="ts">sparks</div></div></div>
         <div style="background:var(--pinkl);border-radius:20px;padding:12px 14px;color:#3A2340" class="row">${starIcon(26)}<div><div class="f" style="font-size:18px">Up to 3</div><div class="ts">stars</div></div></div>
       </div>
       <div style="height:24px"></div>
@@ -886,12 +1021,18 @@ SCREENS.intro = ({ g, lv }) => {
       <div style="height:16px"></div>${btn('Show me how', 'sm', 'how', `style="background:${G.howBg};color:${G.howCol};box-shadow:0 5px 0 ${G.howSh}"`, icon('hand', 20, G.howCol))}<div style="height:26px"></div>
     </div><div class="hind"></div>`,
     mount() {
-      act('start', () => { sfx('tap'); const tut = !S[g].tut; go(playScreen(g), { lv, tut }); });
-      act('how', () => { sfx('tap'); go(playScreen(g), { lv, tut: true }); });
+      act('start', () => { sfx('tap'); const tut = !S[g].tut && ['puzzle', 'memory', 'ballsort'].includes(g); go(playScreen(g), { lv, tut }); });
+      act('how', () => { sfx('tap'); if (['puzzle', 'memory', 'ballsort'].includes(g)) go(playScreen(g), { lv, tut: true }); else howModal(g); });
     }
   };
 };
 SCREENS.tutorial = ({ g, lv }) => SCREENS[playScreen(g)]({ lv, tut: true, demo: true });
+function howModal(g) {
+  const I = introInfo(g, 1); const d = document.createElement('div'); d.className = 'dim';
+  d.innerHTML = `<div class="modal pmodal" style="text-align:left"><div class="pmhead">${myHead()}</div><div class="h1" style="text-align:center;font-size:24px;color:#3A2340">How to play ${GAME[g].title}</div>
+    <div style="margin:14px 0 18px">${I.steps.map((s, i) => `<div class="row" style="padding:8px 0"><span class="ico" style="background:${s[0]}">${icon(s[1], 20, s[2])}</span><div><div class="h3" style="color:#3A2340">${i + 1}. ${s[3]}</div><div class="ts">${s[4]}</div></div></div>`).join('')}</div>${btn('Got it!', 'b-yel sm', 'hok')}</div>`;
+  document.querySelector('.scr').appendChild(d); act('hok', () => d.remove());
+}
 
 /* ================= shared play chrome ================= */
 function playTop(title, sub, dc) {
@@ -901,10 +1042,10 @@ function playTop(title, sub, dc) {
     <div class="row" style="gap:4px;justify-content:center;margin-top:6px">${[1, 2, 3].map(i => `<i style="width:28px;height:6px;border-radius:3px;background:${i <= dc.round ? 'var(--pur)' : 'var(--off)'}"></i>`).join('')}</div></div>
     <div class="pill" style="padding:0 12px">${icon('clock', 18, 'var(--org)')}<b class="f" id="dct">${mmss(dcLeft(dc))}</b></div></div>
     <div style="padding:0 24px 10px"><div class="bar" style="height:8px"><i id="dcb" style="width:${dcLeft(dc) / 3}%;background:var(--org)"></i></div></div>
-    <div class="row" style="padding:0 24px 8px;justify-content:space-between"><div><div class="h1" style="font-size:22px">${title}</div><div class="ts">${sub}</div></div><img alt="" src="${ASSET.mascot}" style="width:64px;margin:-8px 0 -10px"></div>`;
+    <div class="row" style="padding:0 24px 8px;justify-content:space-between"><div><div class="h1" style="font-size:22px">${title}</div><div class="ts">${sub}</div></div>${myChar('width:64px;margin:-8px 0 -10px')}</div>`;
 }
 function dcLeft(dc) { return Math.max(0, 300 - (Date.now() - dc.t0) / 1000); }
-function tipRow(msg) { return `<div class="tip"><span class="av" style="width:44px;height:44px;background:var(--pinkl)"><img class="head" alt="" src="${ASSET.head_pink}"></span><div class="bub" id="tipmsg">${msg}</div></div>`; }
+function tipRow(msg) { return `<div class="tip"><span class="av" style="width:44px;height:44px;background:var(--pinkl)">${myHead()}</span><div class="bub" id="tipmsg">${msg}</div></div>`; }
 function actions(hints) {
   return `<div class="grid2" style="margin-top:18px">${btn(`Hint (${hints})`, 'b-yel sm', 'hint', 'id="hintb"' + (hints ? '' : ' disabled'), icon('bulb', 22, '#3A2340'))}${btn('Restart', 'b-white sm', 'restart', '', icon('restart', 20, '#3A2340'))}</div>`;
 }
@@ -923,10 +1064,10 @@ function pauseModal(root, clock, g, info, restart) {
   const d = document.createElement('div'); d.className = 'dim';
   const T = (k, lab, ic, bg, col) => `<button class="ptog" data-act="pq" data-k="${k}"><span class="ico" style="width:38px;height:38px;border-radius:12px;background:${bg}">${icon(ic, 18, col)}</span><span class="f" style="flex:1;text-align:left;font-size:15px;color:#3A2340">${lab}</span><span class="toggle sm ${S.settings[k] ? 'on' : ''}"></span></button>`;
   d.innerHTML = `<div class="modal pmodal" role="dialog" aria-label="Game paused">
-    <div class="pmhead"><img alt="" src="${ASSET.mascot}"><span class="pbadge">${icon('pause', 14, '#fff', 3.4)}</span></div>
+    <div class="pmhead">${myHead()}<span class="pbadge">${icon('pause', 14, '#fff', 3.4)}</span></div>
     <div class="h1" style="font-size:28px;color:#3A2340">Game paused</div><div class="ts" style="margin-top:2px;color:#7A6A7E">${GAME[g].title}${info.lv ? ' · Level ' + info.lv : ''}</div>
     ${info.stats ? `<div class="grid2" style="gap:10px;margin:14px 0 12px">${info.stats.map(([a, b]) => `<div class="pstat"><div class="ts">${a}</div><div class="f" style="font-size:20px;color:#3A2340">${b}</div></div>`).join('')}</div>` : '<div style="height:12px"></div>'}
-    <div class="grid2" style="gap:10px;margin-bottom:16px">${T('sfx', 'Sounds', 'speaker', '#FFE0EE', '#C94683')}${T('music', 'Music', 'note', '#CDEFF7', '#1C94A6')}</div>
+    <div class="ptogs">${T('sfx', 'Sounds', 'speaker', '#FFE0EE', '#C94683')}${T('music', 'Music', 'note', '#CDEFF7', '#1C94A6')}</div>
     ${btn('Resume', 'b-yel sm', 'pk', '', icon('play', 16, '#3A2340'))}<div style="height:12px"></div>
     ${btn('Restart level', 'b-white sm', 'pr', 'style="height:48px;font-size:16px"', icon('restart', 18, '#3A2340'))}<div style="height:10px"></div>
     ${btn('All levels', 'b-white sm', 'pl', 'style="height:48px;font-size:16px"', icon('games', 18, '#3A2340'))}
@@ -952,7 +1093,7 @@ function coach(root, steps, done) {
     let hand = '';
     if (s.hand) { const f = s.hand(app, sc); hand = `<div class="hand ${f.dx ? 'mover' : 'tapper'}" style="left:${f.x}px;top:${f.y}px;--dx:${f.dx || 0}px;--dy:${f.dy || 0}px">${handSvg()}</div>`; }
     c.innerHTML = `<div class="spot" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px"></div>${hand}
-      <div class="ctip" style="top:${tipTop}px"><div class="row" style="align-items:flex-start"><span class="av" style="width:44px;height:44px;background:#FFE0EE"><img class="head" alt="" src="${ASSET.head_pink}"></span><div style="flex:1"><div class="f" style="font-size:18px">${s.title}</div><div class="t" style="margin-top:3px;line-height:1.4;color:#7A6A7E">${s.text}</div></div></div>
+      <div class="ctip" style="top:${tipTop}px"><div class="row" style="align-items:flex-start"><span class="av" style="width:44px;height:44px;background:#FFE0EE">${myHead()}</span><div style="flex:1"><div class="f" style="font-size:18px">${s.title}</div><div class="t" style="margin-top:3px;line-height:1.4;color:#7A6A7E">${s.text}</div></div></div>
       <div class="row" style="margin-top:12px"><span class="row" style="gap:6px;flex:1">${steps.length > 1 ? steps.map((_, k) => `<i style="width:${k === i ? 18 : 8}px;height:8px;border-radius:4px;background:${k === i ? '#C94683' : '#E9DFC4'}"></i>`).join('') : ''}</span>
       ${i < steps.length - 1 ? `<button class="ts" style="margin-right:16px;color:#9C919F;font-size:14px" data-act="cskip">Skip</button>` : ''}
       <button class="f" data-act="cnext" style="height:36px;padding:0 20px;border-radius:18px;background:#C94683;color:#fff;font-size:15px">${i < steps.length - 1 ? 'Next' : "Got it, let’s play!"}</button></div></div>`;
@@ -990,7 +1131,7 @@ function cubesSvg(cubes, s, maxW) {
   return `<svg viewBox="${minX.toFixed(1)} ${minY.toFixed(1)} ${W.toFixed(1)} ${H.toFixed(1)}" width="${w.toFixed(0)}" height="${(w * H / W).toFixed(0)}" aria-hidden="true">${g}</svg>`;
 }
 function blocksArt(w) { return cubesSvg([[0, 0, 0, 'y'], [1, 0, 0, 'o'], [2, 0, 0, 'b'], [2, 0, 1, 'r'], [1, -1, 1, 'g'], [1, -1, 0, 'p']], 40, w); }
-const BALLC = { p: '#FF7EB6', b: '#3BA9FF', g: '#4CD964', o: '#FFA62B', v: '#9B6BFF', y: '#FFD23C' };
+const BALLC = { p: '#FF7EB6', b: '#3BA9FF', g: '#4CD964', o: '#FFA62B', v: '#9B6BFF', y: '#FFD23C', r: '#FF5A5F' };
 function ballHtml(k, sz) { return `<i class="ball" style="width:${sz}px;height:${sz}px;background:${BALLC[k]}"></i>`; }
 function tubesArt(w) {
   const t = [['o', 'b', 'p'], ['g', 'o', 'b'], ['p', 'g', 'o'], []]; const sc = w / 120;
@@ -1001,32 +1142,36 @@ function tubesArt(w) {
 function gameArt(g, w) {
   if (g === 'puzzle') return wsArt(w);
   if (g === 'ballsort') return tubesArt(w);
+  if (['mathdash', 'blocks', 'matrix'].includes(g)) return libArt(LIB.find(x => x.id === g), w > 100);
   return `<img alt="" src="${ASSET.art_memory}" style="width:${w}px">`;
 }
-function playScreen(g) { return { puzzle: 'puzzle', memory: 'memoryPlay', ballsort: 'ballsort' }[g]; }
+function playScreen(g) { return { puzzle: 'puzzle', memory: 'memoryPlay', ballsort: 'ballsort', mathdash: 'sums', blocks: 'blocks', matrix: 'matrix' }[g]; }
 
 /* ================= v2: word search ================= */
 const WS_THEMES = [
-  ['Animals', ['CAT', 'DOG', 'OWL']], ['Colors', ['RED', 'BLUE', 'PINK', 'GOLD']], ['Food', ['CAKE', 'RICE', 'EGG', 'PEAR']],
-  ['Space', ['SUN', 'MOON', 'STAR', 'MARS', 'SKY']], ['Ocean', ['FISH', 'CRAB', 'SEAL', 'WAVE', 'SHIP']], ['Body', ['HAND', 'NOSE', 'EYE', 'LEG', 'ARM']],
-  ['Weather', ['RAIN', 'SNOW', 'WIND', 'HOT', 'COLD', 'FOG']], ['Farm', ['COW', 'PIG', 'HEN', 'GOAT', 'DUCK', 'HORSE']], ['School', ['BOOK', 'PEN', 'DESK', 'MAP', 'BAG', 'RULER']],
-  ['Fruit', ['APPLE', 'LIME', 'KIWI', 'PLUM', 'MANGO', 'FIG']], ['Sports', ['BALL', 'RUN', 'SWIM', 'GOAL', 'KICK', 'TEAM', 'JUMP']], ['Nature', ['TREE', 'LEAF', 'ROCK', 'LAKE', 'HILL', 'BIRD', 'ROSE', 'SEED']]
+  ['Animals', ['CAT', 'DOG', 'OWL']], ['Colors', ['RED', 'BLUE', 'PINK']], ['Food', ['CAKE', 'RICE', 'EGG', 'PEAR']], ['Toys', ['BALL', 'DOLL', 'KITE', 'TOP']], ['Space', ['SUN', 'MOON', 'STAR', 'MARS']],
+  ['Ocean', ['FISH', 'CRAB', 'SEAL', 'WAVE', 'SHIP']], ['Body', ['HAND', 'NOSE', 'EYE', 'LEG', 'KNEE']], ['Weather', ['RAIN', 'SNOW', 'WIND', 'COLD', 'FOG']], ['Music', ['DRUM', 'SONG', 'BELL', 'HARP', 'FLUTE']], ['Insects', ['ANT', 'BEE', 'MOTH', 'WASP', 'FLEA']],
+  ['Farm', ['COW', 'PIG', 'HEN', 'GOAT', 'DUCK', 'HORSE']], ['School', ['BOOK', 'PEN', 'DESK', 'MAP', 'CHALK', 'RULER']], ['Fruit', ['APPLE', 'LIME', 'KIWI', 'PLUM', 'MANGO', 'GRAPE']], ['Shapes', ['CIRCLE', 'SQUARE', 'OVAL', 'CUBE', 'CONE', 'STAR']], ['Jobs', ['CHEF', 'PILOT', 'NURSE', 'BAKER', 'VET', 'JUDGE']],
+  ['Sports', ['BALL', 'SWIM', 'GOAL', 'KICK', 'TEAM', 'JUMP', 'RACE']], ['Nature', ['TREE', 'LEAF', 'ROCK', 'LAKE', 'HILL', 'BIRD', 'SEED']], ['Transport', ['TRAIN', 'PLANE', 'BOAT', 'TRUCK', 'BIKE', 'TAXI', 'BUS']], ['Kitchen', ['SPOON', 'FORK', 'PLATE', 'BOWL', 'OVEN', 'CUP', 'PAN', 'KNIFE']], ['Garden', ['ROSE', 'TULIP', 'DAISY', 'SOIL', 'SEED', 'HOSE', 'WORM', 'SPADE']]
 ];
 const WS_COLS = ['#FFC93C', '#8FDCEC', '#FFB5D6', '#BDE8A3', '#D5C6FF', '#FFCB98', '#A8E6CF', '#FFD97A'];
 function wsLevel(lv, dc) {
-  if (dc) return { theme: 'Animals', words: ['CAT', 'OWL', 'FROG'], n: 6, diag: false };
-  const [theme, words] = WS_THEMES[(lv - 1) % 12];
-  return { theme, words, n: lv <= 2 ? 6 : lv <= 6 ? 7 : 8, diag: lv >= 7 };
+  if (dc) return { theme: 'Animals', words: ['CAT', 'OWL', 'FROG'], n: 6, diag: false, rev: false };
+  const [theme, words] = WS_THEMES[(lv - 1) % 20];
+  return { theme, words, n: lv <= 5 ? 6 : lv <= 10 ? 7 : lv <= 15 ? 8 : 9, diag: lv >= 11, rev: lv >= 16 };
 }
 function wsBuild(L) {
-  for (let attempt = 0; attempt < 60; attempt++) {
+  for (let attempt = 0; attempt < 80; attempt++) {
     const n = L.n, g = Array.from({ length: n }, () => Array(n).fill('')); const place = [];
-    const dirs = L.diag ? [[0, 1], [1, 0], [1, 1]] : [[0, 1], [1, 0]]; let ok = true;
+    const dirs = L.diag ? [[0, 1], [1, 0], [1, 1], [-1, 1]] : [[0, 1], [1, 0]]; let ok = true;
     for (const w of L.words.slice().sort((a, b) => b.length - a.length)) {
       let done = false;
-      for (let t = 0; t < 200 && !done; t++) {
-        const [dr, dc] = dirs[Math.floor(Math.random() * dirs.length)];
-        const r0 = Math.floor(Math.random() * (n - (dr ? w.length - 1 : 0))), c0 = Math.floor(Math.random() * (n - (dc ? w.length - 1 : 0)));
+      for (let t = 0; t < 300 && !done; t++) {
+        let [dr, dc] = dirs[Math.floor(Math.random() * dirs.length)];
+        if (L.rev && Math.random() < .45) { dr = -dr; dc = -dc; }
+        const span = w.length - 1; const rng = d => d > 0 ? [0, n - 1 - span] : d < 0 ? [span, n - 1] : [0, n - 1];
+        const [ra, rb] = rng(dr), [ca, cb] = rng(dc); if (rb < ra || cb < ca) continue;
+        const r0 = ra + Math.floor(Math.random() * (rb - ra + 1)), c0 = ca + Math.floor(Math.random() * (cb - ca + 1));
         let fits = true; for (let i = 0; i < w.length; i++) { const ch = g[r0 + dr * i][c0 + dc * i]; if (ch && ch !== w[i]) { fits = false; break; } }
         if (!fits) continue;
         for (let i = 0; i < w.length; i++) g[r0 + dr * i][c0 + dc * i] = w[i];
@@ -1047,10 +1192,10 @@ SCREENS.puzzle = (p) => {
     html: `<div class="deco"></div>${statusBar()}${playTop(dc ? 'Find the words!' : 'Level ' + lv, dc ? 'Swipe across or down' : `${L.theme} · ${W.length} words`, dc)}
     <div class="body" style="padding-bottom:20px">
       ${dc ? '' : `<div class="card prog"><span class="f" style="font-size:15px;white-space:nowrap" id="pc">0 of ${W.length} words</span><div class="bar"><i id="pb" style="width:0;background:var(--teal)"></i></div><span class="row f" style="gap:5px;font-size:14px;color:var(--sub)">${icon('clock', 17, 'var(--sub)')}<span id="clk">0:00</span></span></div>
-      ${tipRow(L.diag ? 'Swipe across, down or on a slant!' : 'Swipe across or down to find a word!')}`}
+      ${tipRow(L.rev ? 'Words can go on a slant or even backwards!' : L.diag ? 'Swipe across, down or on a slant!' : 'Swipe across or down to find a word!')}`}
       <div class="wsw" id="wsw">${W.map(w => `<span class="wchip f" data-w="${w}">${w}</span>`).join('')}</div>
       <div class="wsel f" id="wsel">&nbsp;</div>
-      <div class="wsb"><div class="wsg" id="wsg" style="grid-template-columns:repeat(${n},1fr)"><div class="wsl" id="wsl"></div>${B.g.map((row, r) => row.map((ch, c) => `<div class="wsc f" data-r="${r}" data-c="${c}" style="font-size:${n >= 8 ? 22 : n === 7 ? 25 : 28}px">${ch}</div>`).join('')).join('')}</div></div>
+      <div class="wsb"><div class="wsg" id="wsg" style="grid-template-columns:repeat(${n},1fr)"><div class="wsl" id="wsl"></div>${B.g.map((row, r) => row.map((ch, c) => `<div class="wsc f" data-r="${r}" data-c="${c}" style="font-size:${n >= 9 ? 19 : n === 8 ? 22 : n === 7 ? 25 : 28}px">${ch}</div>`).join('')).join('')}</div></div>
       ${actions(2)}
     </div><div class="hind"></div>`,
     mount(root) {
@@ -1070,7 +1215,7 @@ SCREENS.puzzle = (p) => {
       const update = () => { const pc = root.querySelector('#pc'); if (pc) { pc.textContent = `${found.size} of ${W.length} words`; root.querySelector('#pb').style.width = (found.size / W.length * 100) + '%'; } };
       const pathTo = (r, c) => {
         const dr = Math.sign(r - start.r), dc2 = Math.sign(c - start.c), lr = Math.abs(r - start.r), lc = Math.abs(c - start.c);
-        if (!(dr === 0 || dc2 === 0 || (L.diag && lr === lc && dr > 0 && dc2 > 0))) return null;
+        if (!(dr === 0 || dc2 === 0 || lr === lc)) return null;
         const k = Math.max(lr, lc); const out = []; for (let i = 0; i <= k; i++) out.push([start.r + dr * i, start.c + dc2 * i]); return out;
       };
       const showSel = () => {
@@ -1106,11 +1251,8 @@ SCREENS.puzzle = (p) => {
         done = true; const secs = clock.secs(); clock.pause();
         setTimeout(() => {
           if (dc) { dc.res.push({ ok: 1, of: 1 }); go('memoryPlay', { dc: { ...dc, round: 2 } }, { replace: true }); return; }
-          const stars = Math.max(1, 3 - used); const first = !S.puzzle.stars[lv]; const wasNew = lv === S.puzzle.unlocked && lv < 12;
-          S.puzzle.stars[lv] = Math.max(S.puzzle.stars[lv] || 0, stars); if (wasNew) S.puzzle.unlocked++;
-          if (!used) S.perfect++;
-          const reward = first ? 20 : 5; const bonus = first && stars === 3 ? 5 : 0; const before = S.sparks; addSparks(reward + bonus, 'puzzle'); recordGame('puzzle', secs, true);
-          go('result', { g: 'puzzle', lv, stars, secs, stat: used, statLabel: used === 1 ? 'Hint used' : 'Hints used', reward, bonus, before, unlockedNext: wasNew, msg: `You found all ${W.length} words!` }, { replace: true });
+          const stars = Math.max(1, 3 - used); if (!used) S.perfect++;
+          finishLevel('puzzle', lv, stars, secs, used, used === 1 ? 'Hint used' : 'Hints used', `You found all ${W.length} words!`);
         }, 700);
       };
       act('hint', () => {
@@ -1135,33 +1277,54 @@ SCREENS.puzzle = (p) => {
   };
 };
 
-/* ================= v2: ball sort ================= */
-function bsLevel(lv) { const colors = lv <= 3 ? 3 : lv <= 8 ? 4 : 5; return { colors, tubes: colors + 2, cap: 4 }; }
+/* ================= v3: ball sort (20 levels) ================= */
+function bsLevel(lv) {
+  const colors = lv <= 3 ? 3 : lv <= 7 ? 4 : lv <= 12 ? 5 : 6;
+  const empty = lv >= 17 ? 1 : 2;
+  return { colors, tubes: colors + empty, cap: 4, empty };
+}
+function bsDone(t) { return t.every(x => !x.length || (x.length === 4 && x.every(y => y === x[0]))); }
+function bsSolve(start, limit = 25000) {
+  const seen = new Set(); const path = []; let nodes = 0;
+  const key = s => s.map(t => t.join('')).sort().join('|');
+  const dfs = s => {
+    if (bsDone(s)) return true; if (++nodes > limit) return false; const k = key(s); if (seen.has(k)) return false; seen.add(k);
+    const moves = [];
+    for (let a = 0; a < s.length; a++) { if (!s[a].length) continue; const top = s[a][s[a].length - 1]; const pure = s[a].every(x => x === top);
+      for (let b = 0; b < s.length; b++) { if (a === b || s[b].length >= 4) continue; if (s[b].length && s[b][s[b].length - 1] !== top) continue; if (pure && !s[b].length) continue;
+        moves.push([a, b, s[b].length ? (s[b].every(x => x === top) ? 0 : 1) : 2]); } }
+    moves.sort((x, y) => x[2] - y[2]);
+    for (const [a, b] of moves) { const n = s.map(t => t.slice()); n[b].push(n[a].pop()); path.push([a, b]); if (dfs(n)) return true; path.pop(); }
+    return false;
+  };
+  return dfs(start.map(t => t.slice())) ? path : null;
+}
 function bsBuild(L) {
-  const keys = ['p', 'b', 'g', 'o', 'v'].slice(0, L.colors);
-  for (let t = 0; t < 50; t++) {
+  const keys = ['p', 'b', 'g', 'o', 'v', 'y'].slice(0, L.colors);
+  for (let t = 0; t < 40; t++) {
     const all = keys.flatMap(k => [k, k, k, k]).sort(() => Math.random() - .5);
     const tubes = Array.from({ length: L.tubes }, (_, i) => i < L.colors ? all.slice(i * 4, i * 4 + 4) : []);
-    if (!tubes.some(tb => tb.length === 4 && tb.every(x => x === tb[0]))) return tubes;
+    if (tubes.some(tb => tb.length === 4 && tb.every(x => x === tb[0]))) continue;
+    const sol = bsSolve(tubes); if (sol) return { tubes, par: Math.ceil(sol.length * 1.15) + 2 };
   }
+  const L2 = { ...L, tubes: L.colors + 2 }; return bsBuild(L2);
 }
 SCREENS.ballsort = (p) => {
-  const { lv } = p; const L = bsLevel(lv); let tubes = bsBuild(L); const startT = tubes.map(t => t.slice());
-  const par = L.colors * 5;
+  const { lv } = p; const L = bsLevel(lv); const B = bsBuild(L); let tubes = B.tubes.map(t => t.slice()); const startT = B.tubes.map(t => t.slice());
+  const par = Math.max(B.par, L.colors * 3); const nT = tubes.length;
   return {
-    html: `<div class="deco"></div>${statusBar()}${playTop('Level ' + lv, 'Sort the balls by color')}
+    html: `<div class="deco"></div>${statusBar()}${playTop('Level ' + lv, `${L.colors} colors · ${L.empty === 1 ? 'only 1 empty tube!' : '2 empty tubes'}`)}
     <div class="body" style="padding-bottom:20px">
       <div class="grid3 stat3"><div class="card"><div class="ts">Moves</div><div class="f" id="mv">0</div></div><div class="card"><div class="ts">Goal</div><div class="f" style="color:var(--pur)">${par} or less</div></div><div class="card"><div class="ts">Sorted</div><div class="f" id="srt">0 / ${L.colors}</div></div></div>
-      <div class="bsb"><div class="ts bstip f">Tap a tube to pick up a ball</div><div class="bst" id="bst"></div></div>
+      <div class="bsb"><div class="ts bstip f">Tap a tube to pick up a ball</div><div class="bst t${nT}" id="bst"></div></div>
       <div class="grid3" style="margin-top:18px">${btn('Undo', 'b-white sm', 'undo', 'id="undob"', icon('restart', 20, '#3A2340'))}${btn('Hint (2)', 'b-yel sm', 'hint', 'id="hintb"', icon('bulb', 20, '#3A2340'))}${btn('Restart', 'b-white sm', 'restart', '', icon('restart', 20, '#3A2340'))}</div>
     </div><div class="hind"></div>`,
     mount(root) {
       let sel = -1, moves = 0, hist = [], hints = 2, usedH = 0, done = false, hi = null;
       const clock = startClock(root, null);
-      const box = root.querySelector('#bst'); const sz = L.tubes <= 5 ? 38 : L.tubes === 6 ? 32 : 26;
+      const box = root.querySelector('#bst'); const sz = nT <= 5 ? 38 : nT === 6 ? 30 : nT === 7 ? 26 : 22;
       const sorted = () => tubes.filter(t => t.length === 4 && t.every(x => x === t[0])).length;
       const draw = () => {
-        box.style.setProperty('--n', L.tubes);
         box.innerHTML = tubes.map((t, i) => `<button class="tube ${hi && hi.includes(i) ? 'hl' : ''} ${t.length === 4 && t.every(x => x === t[0]) ? 'full' : ''}" data-t="${i}" aria-label="Tube ${i + 1}" style="width:${sz + 14}px;height:${sz * 4 + 30}px">
           <span class="lift">${sel === i && t.length ? ballHtml(t[t.length - 1], sz) : ''}</span>
           <span class="balls">${t.map((k, j) => sel === i && j === t.length - 1 ? '' : ballHtml(k, sz)).join('')}</span></button>`).join('');
@@ -1173,26 +1336,20 @@ SCREENS.ballsort = (p) => {
         const t = e.target.closest('.tube'); if (!t || done || root.querySelector('.coach')) return; ac(); const i = +t.dataset.t; hi = null;
         if (sel < 0) { if (tubes[i].length) { sel = i; sfx('tap'); } draw(); return; }
         if (sel === i) { sel = -1; sfx('tap'); draw(); return; }
-        if (canMove(sel, i)) { hist.push(tubes.map(x => x.slice())); tubes[i].push(tubes[sel].pop()); moves++; sel = -1; sfx(sorted() ? 'ok' : 'flip'); draw();
-          if (tubes.every(x => !x.length || (x.length === 4 && x.every(y => y === x[0])))) finish(); }
+        if (canMove(sel, i)) { hist.push(tubes.map(x => x.slice())); tubes[i].push(tubes[sel].pop()); moves++; sel = -1; sfx('flip'); draw();
+          if (bsDone(tubes)) finish(); }
         else { sfx('no'); const el = box.querySelector(`[data-t="${i}"]`); el.animate([{ transform: 'translateX(-5px)' }, { transform: 'translateX(5px)' }, { transform: 'none' }], { duration: 280 }); }
       });
       const finish = () => {
         done = true; const secs = clock.secs(); clock.pause();
-        setTimeout(() => {
-          let stars = moves <= par ? 3 : moves <= par * 1.6 ? 2 : 1; stars = Math.max(1, stars - usedH);
-          const st = S.ballsort; const first = !st.stars[lv]; const wasNew = lv === st.unlocked && lv < 12;
-          st.stars[lv] = Math.max(st.stars[lv] || 0, stars); if (wasNew) st.unlocked++;
-          const reward = first ? 20 : 5; const bonus = first && stars === 3 ? 5 : 0; const before = S.sparks; addSparks(reward + bonus, 'ballsort'); recordGame('ballsort', secs, true);
-          go('result', { g: 'ballsort', lv, stars, secs, stat: moves, statLabel: 'Moves', reward, bonus, before, unlockedNext: wasNew, msg: 'Brilliant sorting!' }, { replace: true });
-        }, 600);
+        setTimeout(() => { let stars = moves <= par ? 3 : moves <= par * 1.5 ? 2 : 1; stars = Math.max(1, stars - usedH);
+          finishLevel('ballsort', lv, stars, secs, moves, 'Moves', 'Brilliant sorting!'); }, 600);
       };
       act('undo', () => { if (!hist.length || done) return; tubes = hist.pop(); moves++; sel = -1; sfx('tap'); draw(); });
       act('hint', () => {
-        if (!hints || done) return; let best = null;
-        for (let a = 0; a < tubes.length && !best; a++) for (let b = 0; b < tubes.length; b++) if (canMove(a, b) && tubes[b].length) { best = [a, b]; break; }
-        if (!best) for (let a = 0; a < tubes.length && !best; a++) for (let b = 0; b < tubes.length; b++) if (canMove(a, b) && !(tubes[a].every(x => x === tubes[a][0]))) { best = [a, b]; break; }
-        if (!best) return; hints--; usedH++; hi = best; sel = -1; sfx('tap'); draw();
+        if (!hints || done) return; const sol = bsSolve(tubes, 40000);
+        if (!sol || !sol.length) { toast(icon('bulb', 18, '#FFC93C') + 'Try Undo or Restart, this one is stuck!'); return; }
+        hints--; usedH++; hi = sol[0]; sel = -1; sfx('tap'); draw();
         const b = root.querySelector('#hintb'); b.lastChild.textContent = `Hint (${hints})`; b.disabled = !hints;
       });
       act('restart', () => { sfx('tap'); tubes = startT.map(t => t.slice()); moves = 0; hist = []; sel = -1; hi = null; draw(); });
@@ -1208,85 +1365,102 @@ SCREENS.ballsort = (p) => {
   };
 };
 
-/* ================= v2: count the blocks ================= */
-function blocksQ(qn) {
-  const keys = Object.keys(BCOL); const maxH = qn < 3 ? 2 : 3;
-  for (let t = 0; t < 80; t++) {
-    const cubes = []; const w = 3, d = qn < 2 ? 2 : 3; let hidden = 0;
-    for (let x = 0; x < w; x++) for (let y = 0; y < d; y++) {
-      const h = Math.random() < .35 ? 0 : 1 + Math.floor(Math.random() * maxH);
-      for (let z = 0; z < h; z++) cubes.push([x, y - d + 1, z, keys[Math.floor(Math.random() * keys.length)]]);
+/* ================= v3: count the blocks (20 levels) ================= */
+function blocksCfg(lv) {
+  const t = lv <= 5 ? 0 : lv <= 10 ? 1 : lv <= 15 ? 2 : 3;
+  return [{ w: 2, d: 2, h: 2, lo: 3, hi: 6, hide: lv >= 3 }, { w: 3, d: 2, h: 2, lo: 5, hi: 9, hide: true }, { w: 3, d: 3, h: 3, lo: 8, hi: 13, hide: true }, { w: 4, d: 3, h: 3, lo: 11, hi: 17, hide: true }][t];
+}
+function blocksQ(lv) {
+  const C = blocksCfg(lv); const keys = Object.keys(BCOL);
+  for (let t = 0; t < 200; t++) {
+    const cubes = []; let hidden = 0;
+    for (let x = 0; x < C.w; x++) for (let y = 0; y < C.d; y++) {
+      const h = Math.random() < .25 ? 0 : 1 + Math.floor(Math.random() * C.h);
+      for (let z = 0; z < h; z++) cubes.push([x, y - C.d + 1, z, keys[Math.floor(Math.random() * keys.length)]]);
       if (h > 1) hidden += h - 1;
     }
-    const n = cubes.length; if (n < 4 || n > (qn < 3 ? 8 : 12) || !hidden) continue;
-    const o = new Set([n]); while (o.size < 4) { const v = n + [-2, -1, 1, 2, 3][Math.floor(Math.random() * 5)]; if (v > 0) o.add(v); }
+    const n = cubes.length; if (n < C.lo || n > C.hi || (C.hide && !hidden)) continue;
+    const spread = lv >= 11 ? [-2, -1, 1, 2] : [-3, -2, -1, 1, 2, 3];
+    const o = new Set([n]); while (o.size < 4) { const v = n + spread[Math.floor(Math.random() * spread.length)]; if (v > 0) o.add(v); }
     return { cubes, ans: n, opts: [...o].sort((a, b) => a - b) };
   }
 }
-SCREENS.blocks = () => {
-  const N = 8; let n = 0, ok = 0, Q = blocksQ(0);
-  const board = () => `<div class="blkbd"><div class="blktip f">Tip: some blocks hide under others!</div><div class="blkart">${cubesSvg(Q.cubes, 50, 270)}</div>
+SCREENS.blocks = (p) => {
+  const lv = p.lv || 1; const N = 6, PASS = 4; let n = 0, ok = 0, Q = blocksQ(lv);
+  const tl = lv <= 5 ? 0 : lv <= 10 ? 25 : lv <= 15 ? 20 : 15;
+  const board = () => `<div class="blkbd"><div class="blktip f">${lv >= 3 ? 'Tip: some blocks hide under others!' : 'Count every block you see!'}</div><div class="blkart">${cubesSvg(Q.cubes, 50, 270)}</div>
+    ${tl ? `<div class="bar" style="height:8px;margin:0 6px 12px;background:rgba(255,255,255,.4)"><i id="qt" style="width:100%;background:#B0561A;transition:none"></i></div>` : ''}
     <div class="blkopts">${Q.opts.map(o => `<button class="qbtn" data-act="pick" data-v="${o}">${o}</button>`).join('')}</div></div>`;
   return {
-    html: `<div class="deco"></div>${statusBar()}${header({ back: true, title: 'Count the Blocks', sub: 'How many blocks in total?' })}
+    html: `<div class="deco"></div>${statusBar()}${playTop('Level ' + lv, 'How many blocks in total?')}
     <div class="body" style="padding-bottom:20px">
-      <div class="grid3 stat3"><div class="card"><div class="ts">Question</div><div class="f" id="qn">1 / ${N}</div></div><div class="card"><div class="ts">Score</div><div class="f" id="sc" style="color:#E0601A">0</div></div><div class="card"><div class="ts">Best</div><div class="f">${S.blocksBest || 0}</div></div></div>
+      <div class="grid3 stat3"><div class="card"><div class="ts">Question</div><div class="f" id="qn">1 / ${N}</div></div><div class="card"><div class="ts">Correct</div><div class="f" id="sc" style="color:#E0601A">0</div></div><div class="card"><div class="ts">To pass</div><div class="f">${PASS} / ${N}</div></div></div>
       <div id="bb">${board()}</div>
-      ${tipRow('Count every block, even the hidden ones!')}
+      ${tipRow(tl ? `Be quick! ${tl} seconds per question.` : 'Count every block, even the hidden ones!')}
     </div><div class="hind"></div>`,
     mount(root) {
-      root.querySelector('.tip').style.marginTop = '18px'; const t0 = Date.now(); let busy = false;
-      act('pick', t => {
-        if (busy) return; busy = true; const good = +t.dataset.v === Q.ans; t.classList.add(good ? 'ok' : 'no'); sfx(good ? 'ok' : 'no'); if (good) ok++; n++;
+      root.querySelector('.tip').style.marginTop = '18px'; let busy = false, qStart = 0, ended = false;
+      const clock = startClock(root, null, el => { if (!tl || busy || ended) return; const left = tl - (el - qStart); const b = root.querySelector('#qt'); if (b) b.style.width = Math.max(0, left / tl * 100) + '%'; if (left <= 0) answer(null); });
+      const answer = t => {
+        if (busy) return; busy = true; const good = t && +t.dataset.v === Q.ans; if (t) t.classList.add(good ? 'ok' : 'no'); sfx(good ? 'ok' : 'no'); if (good) ok++; n++;
         root.querySelector('#sc').textContent = ok; const tm = root.querySelector('#tipmsg');
-        if (tm) tm.textContent = good ? ['Correct!', 'Great counting!', 'Super eyes!'][n % 3] : `Almost! There were ${Q.ans} blocks.`;
+        if (tm) tm.textContent = good ? ['Correct!', 'Great counting!', 'Super eyes!'][n % 3] : t ? `Almost! There were ${Q.ans} blocks.` : `Time’s up! It was ${Q.ans}.`;
         if (!good) root.querySelector(`.qbtn[data-v="${Q.ans}"]`).classList.add('ok');
         setTimeout(() => {
-          if (n >= N) { const reward = ok * 3; const before = S.sparks; const best = ok > (S.blocksBest || 0); S.blocksBest = Math.max(S.blocksBest || 0, ok); addSparks(reward, 'blocks'); recordGame('blocks', (Date.now() - t0) / 1000, ok > 0);
-            go('miniResult', { title: 'Great counting!', sub: best ? 'New best score!' : 'Best score: ' + S.blocksBest, big: `${ok}/${N}`, unit: 'correct', reward, before, again: 'blocks' }, { replace: true }); return; }
-          Q = blocksQ(n); root.querySelector('#bb').innerHTML = board(); root.querySelector('#qn').textContent = `${n + 1} / ${N}`; busy = false;
-        }, good ? 600 : 1300);
-      });
+          if (n >= N) { ended = true; const secs = clock.secs(); clock.pause();
+            if (ok < PASS) { go('retry', { g: 'blocks', lv, why: `You got ${ok} of ${N}. Get ${PASS} right to pass.` }, { replace: true }); return; }
+            finishLevel('blocks', lv, ok === N ? 3 : ok === N - 1 ? 2 : 1, secs, `${ok}/${N}`, 'Correct', 'Great counting!'); return; }
+          Q = blocksQ(lv); root.querySelector('#bb').innerHTML = board(); root.querySelector('#qn').textContent = `${n + 1} / ${N}`; qStart = clock.secs(); busy = false;
+        }, good ? 600 : 1400);
+      };
+      act('pick', t => answer(t));
+      act('pause', () => { sfx('tap'); pauseModal(root, clock, 'blocks', { lv, stats: [['Correct', `${ok}/${N}`], ['Question', `${n + 1}/${N}`]] }, () => render(false)); });
     }
   };
 };
 
-/* ================= v2: memory matrix ================= */
-SCREENS.matrix = () => {
-  const ROUNDS = 5;
+/* ================= v3: memory matrix (20 levels) ================= */
+function mxCfg(lv) {
+  const n = lv <= 3 ? 3 : lv <= 8 ? 4 : lv <= 14 ? 5 : 6;
+  const k = Math.min(Math.floor(n * n * .45), 2 + Math.ceil(lv / 2));
+  return { n, k, show: Math.max(700, 1700 - lv * 45) + k * 70, rounds: 3 };
+}
+SCREENS.matrix = (p) => {
+  const lv = p.lv || 1; const C = mxCfg(lv);
   return {
-    html: `<div class="deco"></div>${statusBar()}${header({ back: true, title: 'Memory Matrix', sub: 'Remember the pattern' })}
+    html: `<div class="deco"></div>${statusBar()}${playTop('Level ' + lv, `${C.n}×${C.n} grid · ${C.k} tiles`)}
     <div class="body" style="padding-bottom:20px">
-      <div class="grid3 stat3"><div class="card"><div class="ts">Round</div><div class="f" id="rd">1 / ${ROUNDS}</div></div><div class="card"><div class="ts">Found</div><div class="f" id="fd" style="color:#3A5BE0">0 / 0</div></div><div class="card"><div class="ts">Lives</div><div class="f" id="lv" style="color:#FF6F91"></div></div></div>
+      <div class="grid3 stat3"><div class="card"><div class="ts">Round</div><div class="f" id="rd">1 / ${C.rounds}</div></div><div class="card"><div class="ts">Found</div><div class="f" id="fd" style="color:#3A5BE0">0 / ${C.k}</div></div><div class="card"><div class="ts">Lives</div><div class="f" id="lv" style="color:#FF6F91"></div></div></div>
       <div class="mxb"><div class="mxmsg f" id="mxm">Watch closely…</div><div class="mxg" id="mxg"></div></div>
       <div class="grid2" style="margin-top:18px">${btn('Peek (1)', 'b-yel sm', 'peek', 'id="peekb"', icon('help', 20, '#3A2340'))}${btn('Restart', 'b-white sm', 'restart', '', icon('restart', 20, '#3A2340'))}</div>
     </div><div class="hind"></div>`,
     mount(root) {
-      let round = 1, lives = 3, peeks = 1, pat = new Set(), got = new Set(), phase = 'show', timers = [], cleared = 0; const t0 = Date.now();
+      let round = 1, lives = 3, peeks = 1, usedPeek = 0, pat = new Set(), got = new Set(), phase = 'show', timers = [];
+      const clock = startClock(root, null);
       const g = root.querySelector('#mxg'), msg = root.querySelector('#mxm');
       const T = (fn, ms) => { const id = setTimeout(fn, ms); timers.push(id); }; onLeave(() => timers.forEach(clearTimeout));
       const hearts = () => { root.querySelector('#lv').innerHTML = [0, 1, 2].map(i => icon('heart', 20, i < lives ? '#FF6F91' : '#E9DFC4', 2.2).replace('<path', `<path fill="${i < lives ? '#FF6F91' : '#E9DFC4'}"`)).join(''); };
       const start = () => {
-        const n = round <= 2 ? 4 : 5, k = 2 + round; pat = new Set(); got = new Set();
-        while (pat.size < k) pat.add(Math.floor(Math.random() * n * n));
-        g.style.gridTemplateColumns = `repeat(${n},1fr)`;
-        g.innerHTML = Array.from({ length: n * n }, (_, i) => `<button class="mx ${pat.has(i) ? 'lit' : ''}" data-i="${i}" aria-label="Tile ${i + 1}"></button>`).join('');
-        root.querySelector('#rd').textContent = `${round} / ${ROUNDS}`; root.querySelector('#fd').textContent = `0 / ${k}`;
+        pat = new Set(); got = new Set(); while (pat.size < C.k) pat.add(Math.floor(Math.random() * C.n * C.n));
+        g.style.gridTemplateColumns = `repeat(${C.n},1fr)`; g.style.gap = C.n >= 6 ? '7px' : '10px';
+        g.innerHTML = Array.from({ length: C.n * C.n }, (_, i) => `<button class="mx ${pat.has(i) ? 'lit' : ''}" data-i="${i}" aria-label="Tile ${i + 1}"></button>`).join('');
+        root.querySelector('#rd').textContent = `${round} / ${C.rounds}`; root.querySelector('#fd').textContent = `0 / ${C.k}`;
         phase = 'show'; msg.textContent = 'Remember the lit tiles!';
-        T(() => { g.querySelectorAll('.mx.lit').forEach(x => x.classList.remove('lit')); phase = 'tap'; msg.textContent = `Your turn! Tap ${pat.size} tiles`; }, 1400 + k * 150);
+        T(() => { g.querySelectorAll('.mx.lit').forEach(x => x.classList.remove('lit')); phase = 'tap'; msg.textContent = `Your turn! Tap ${C.k} tiles`; }, C.show);
       };
       g.addEventListener('click', e => {
         const t = e.target.closest('.mx'); if (!t || phase !== 'tap' || t.classList.contains('ok') || t.classList.contains('bad')) return; ac(); const i = +t.dataset.i;
-        if (pat.has(i)) { t.classList.add('ok'); got.add(i); sfx('ok'); root.querySelector('#fd').textContent = `${got.size} / ${pat.size}`; msg.textContent = got.size === pat.size ? 'Perfect!' : `Your turn! Tap ${pat.size - got.size} more`;
-          if (got.size === pat.size) { phase = 'wait'; cleared++; T(() => { if (round >= ROUNDS) end(); else { round++; start(); } }, 800); } }
+        if (pat.has(i)) { t.classList.add('ok'); got.add(i); sfx('ok'); root.querySelector('#fd').textContent = `${got.size} / ${C.k}`; msg.textContent = got.size === C.k ? 'Perfect!' : `Tap ${C.k - got.size} more`;
+          if (got.size === C.k) { phase = 'wait'; T(() => { if (round >= C.rounds) win(); else { round++; start(); } }, 800); } }
         else { t.classList.add('bad'); lives--; sfx('no'); hearts(); msg.textContent = lives ? 'Oops! That one wasn’t lit.' : 'Out of lives!';
-          if (!lives) { phase = 'wait'; g.querySelectorAll('.mx').forEach(x => { if (pat.has(+x.dataset.i) && !x.classList.contains('ok')) x.classList.add('miss'); }); T(end, 1300); } }
+          if (!lives) { phase = 'wait'; g.querySelectorAll('.mx').forEach(x => { if (pat.has(+x.dataset.i) && !x.classList.contains('ok')) x.classList.add('miss'); });
+            T(() => go('retry', { g: 'matrix', lv, why: `You cleared ${round - 1} of ${C.rounds} rounds. Keep all your hearts safe!` }, { replace: true }), 1300); } }
       });
-      const end = () => { const reward = cleared * 5; const before = S.sparks; const best = cleared > (S.matrixBest || 0); S.matrixBest = Math.max(S.matrixBest || 0, cleared); addSparks(reward, 'matrix'); recordGame('matrix', (Date.now() - t0) / 1000, cleared > 0);
-        go('miniResult', { title: cleared === ROUNDS ? 'Memory master!' : 'Nice memory!', sub: best ? 'New best score!' : 'Best: ' + S.matrixBest + ' rounds', big: `${cleared}/${ROUNDS}`, unit: 'rounds cleared', reward, before, again: 'matrix' }, { replace: true }); };
-      act('peek', () => { if (!peeks || phase !== 'tap') return; peeks--; sfx('tap'); g.querySelectorAll('.mx').forEach(x => { if (pat.has(+x.dataset.i) && !x.classList.contains('ok')) x.classList.add('lit'); });
+      const win = () => { const secs = clock.secs(); clock.pause(); finishLevel('matrix', lv, Math.max(1, lives - usedPeek), secs, `${lives}/3`, 'Lives left', 'Memory master!'); };
+      act('peek', () => { if (!peeks || phase !== 'tap') return; peeks--; usedPeek = 1; sfx('tap'); g.querySelectorAll('.mx').forEach(x => { if (pat.has(+x.dataset.i) && !x.classList.contains('ok')) x.classList.add('lit'); });
         T(() => g.querySelectorAll('.mx.lit').forEach(x => x.classList.remove('lit')), 900); const b = root.querySelector('#peekb'); b.lastChild.textContent = 'Peek (0)'; b.disabled = true; });
       act('restart', () => { sfx('tap'); render(false); });
+      act('pause', () => { sfx('tap'); toast(icon('pause', 18, '#FFC93C') + 'Memory Matrix can’t pause, the pattern would vanish!'); });
       hearts(); start();
     }
   };
@@ -1301,6 +1475,8 @@ const SYMS = {
   planet: `<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="#22B5C9"/><circle cx="14" cy="14" r="5" fill="#fff" opacity=".45"/></svg>`,
   flower: `<svg viewBox="0 0 40 40">${[0, 1, 2, 3, 4].map(i => { const a = -Math.PI / 2 + i * 2 * Math.PI / 5; return `<circle cx="${(20 + Math.cos(a) * 10).toFixed(1)}" cy="${(20 + Math.sin(a) * 10).toFixed(1)}" r="8" fill="#7CCB5A"/>`; }).join('')}<circle cx="20" cy="20" r="6.5" fill="#FFC93C"/></svg>`,
   note: `<svg viewBox="0 0 40 40"><path d="M15 30V8l18-4v22" stroke="#C94683" stroke-width="4" fill="none" stroke-linejoin="round"/><circle cx="10" cy="30" r="6" fill="#C94683"/><circle cx="28" cy="26" r="6" fill="#C94683"/></svg>`,
+  sun: `<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="9" fill="#FFC93C"/><g stroke="#FF8A1F" stroke-width="3.5" stroke-linecap="round"><path d="M20 3v5M20 32v5M3 20h5M32 20h5M8 8l3.5 3.5M28.5 28.5L32 32M8 32l3.5-3.5M28.5 11.5L32 8"/></g></svg>`,
+  leaf: `<svg viewBox="0 0 40 40"><path d="M8 32C6 16 18 6 34 6c0 16-10 28-26 26z" fill="#5DB33A"/><path d="M8 32L26 14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>`,
   gem: `<svg viewBox="0 0 40 40"><path d="M10 6h20l8 10-18 20L2 16z" fill="#8FDCEC"/><path d="M2 16h36M14 6l6 30 6-30" stroke="#22B5C9" stroke-width="2" fill="none"/></svg>`
 };
 SCREENS.memoryPlay = (p) => {
@@ -1308,7 +1484,7 @@ SCREENS.memoryPlay = (p) => {
   const keys = Object.keys(SYMS).slice(0, pairs);
   let deck = [...keys, ...keys].map((k, i) => ({ k, i, r: Math.sin((i + 1) * 9301 + (lv || 7) * 49297 + Date.now() % 1000) })).sort((a, b) => a.r - b.r).map(c => c.k);
   if (p.tut) { deck = deck.filter(k => k !== 'star'); deck.unshift('star', 'star'); }
-  const cols = pairs === 3 || pairs === 6 ? 3 : 4;
+  const cols = pairs === 3 || pairs === 6 ? 3 : pairs === 10 ? 5 : 4;
   return {
     html: `<div class="deco"></div>${statusBar()}${playTop(dc ? 'Find the pairs!' : 'Level ' + lv, dc ? 'Tap two cards to flip them' : 'Find the pairs', dc)}
     <div class="body" style="padding-bottom:20px">
@@ -1335,7 +1511,7 @@ SCREENS.memoryPlay = (p) => {
               if (matched === pairs) finish(); }, 380);
           } else {
             combo = 1; setTimeout(() => { a.classList.add('bad'); b.classList.add('bad'); sfx('no'); tipm('Not a match. Try to remember where they are!'); }, 420);
-            setTimeout(() => { a.classList.remove('up', 'bad'); b.classList.remove('up', 'bad'); open = []; busy = false; upd(); }, 1000);
+            setTimeout(() => { a.classList.remove('up', 'bad'); b.classList.remove('up', 'bad'); open = []; busy = false; upd(); }, lv >= 13 ? 700 : 1000);
           }
         }
       }));
@@ -1343,10 +1519,8 @@ SCREENS.memoryPlay = (p) => {
         done = true; const secs = clock.secs(); clock.pause(); checkBadges();
         setTimeout(() => {
           if (dc) { dc.res.push({ ok: Math.max(0, pairs * 2 - Math.max(0, moves - pairs)), of: pairs * 2 }); go('sums', { dc: { ...dc, round: 3 } }, { replace: true }); return; }
-          let stars = moves <= pairs + 2 ? 3 : moves <= pairs * 2 ? 2 : 1; stars = Math.max(1, stars - usedH);
-          const first = !S.memory.stars[lv]; const wasNew = lv === S.memory.unlocked && lv < 12; S.memory.stars[lv] = Math.max(S.memory.stars[lv] || 0, stars); if (wasNew) S.memory.unlocked++;
-          const reward = first ? 20 : 5; const bonus = first && stars === 3 ? 5 : 0; const before = S.sparks; addSparks(reward + bonus, 'memory'); recordGame('memory', secs, true);
-          go('result', { g: 'memory', lv, stars, secs, stat: moves, statLabel: 'Moves', reward, bonus, before, unlockedNext: wasNew, msg: `You matched all ${pairs} pairs!` }, { replace: true });
+          const slack = lv >= 13 ? 1 : 2; let stars = moves <= pairs + slack ? 3 : moves <= pairs * 2 ? 2 : 1; stars = Math.max(1, stars - usedH);
+          finishLevel('memory', lv, stars, secs, moves, 'Moves', `You matched all ${pairs} pairs!`);
         }, 800);
       };
       act('hint', () => {
@@ -1380,14 +1554,14 @@ SCREENS.result = (r) => {
       <div style="text-align:center;padding-top:14px;position:relative"><div class="f" style="color:var(--yel);font-size:16px">${r.msg}</div>
       <div class="h1" style="color:#fff;font-size:calc(30px*var(--k));margin-top:2px">Level ${r.lv} Complete!</div>
       <div class="row" style="justify-content:center;gap:6px;margin-top:10px;align-items:flex-end">${[0, 1, 2].map(i => `<span style="animation:spinIn .5s ${.2 + i * .25}s both">${starIcon(i === 1 ? 66 : 50, i < r.stars, 'rgba(255,255,255,.5)')}</span>`).join('')}</div>
-      <img alt="" src="${ASSET.mascot}" style="width:170px;margin-top:0;animation:float 3s ease-in-out infinite"></div></div>
+      ${myChar('width:170px;margin-top:0;animation:float 3s ease-in-out infinite')}</div></div>
     <div class="body" style="margin-top:-30px;background:var(--bg);border-radius:30px 30px 0 0;padding-top:20px;position:relative">
       <div class="grid3" style="text-align:center;gap:10px">${[['Time', mmss(r.secs)], [r.statLabel || 'Moves', r.stat], ['Stars', r.stars + ' / 3']].map(([a, b]) => `<div class="card" style="padding:10px 4px"><div class="ts" style="color:var(--ink)">${a}</div><div class="f" style="font-size:22px">${b}</div></div>`).join('')}</div>
       <div class="h2" style="margin:16px 0 8px;font-size:17px">You earned</div>
       <div class="row" style="background:var(--cream2);border-radius:20px;padding:12px 16px">${spark(30)}<div style="flex:1"><div class="f" style="font-size:20px">+${total} sparks</div><div class="ts">${r.bonus ? `${r.reward} for the level + ${r.bonus} for 3 stars` : `Your sparks: ${fmt(r.before)} → ${fmt(r.before + total)}`}</div></div>${r.bonus ? `<span class="chip f" style="background:#fff;color:#E0601A">Total ${fmt(r.before + total)}</span>` : ''}</div>
-      ${r.unlockedNext ? `<div class="card row" style="padding:12px 14px;margin-top:10px"><span class="f" style="width:52px;height:52px;border-radius:16px;background:var(--yel);display:grid;place-items:center;font-size:26px;color:#3A2340;flex:0 0 auto">${r.lv + 1}</span><div><div class="f" style="font-size:17px">Level ${r.lv + 1} unlocked!</div><div class="ts">A little trickier. You’ve got this!</div></div></div>` : ''}
+      ${r.unlockedNext ? `<div class="card row" style="padding:12px 14px;margin-top:10px"><span class="f" style="width:52px;height:52px;border-radius:16px;background:var(--yel);display:grid;place-items:center;font-size:26px;color:#3A2340;flex:0 0 auto">${r.lv + 1}</span><div><div class="f" style="font-size:17px">Level ${r.lv + 1} unlocked!</div><div class="ts">${lvReward(r.lv + 1) > lvReward(r.lv) ? `New tier! Each level now gives +${lvReward(r.lv + 1)} sparks` : 'A little trickier. You’ve got this!'}</div></div></div>` : ''}
       <div style="height:16px"></div>
-      ${r.lv < 12 ? btn('Next level', 'b-yel', 'next', '', icon('play', 18, '#3A2340')) : btn('Back to levels', 'b-yel', 'toLevels')}
+      ${r.lv < 20 ? btn('Next level', 'b-yel', 'next', '', icon('play', 18, '#3A2340')) : btn('Back to levels', 'b-yel', 'toLevels')}
       <div class="grid2" style="margin-top:12px">${btn('Replay', 'b-white sm', 'again', 'style="height:50px;font-size:16px"', icon('restart', 18, '#3A2340'))}${btn('All levels', 'b-white sm', 'toLevels', 'style="height:50px;font-size:16px"', icon('games', 18, '#3A2340'))}</div>
     </div><div class="hind"></div>`,
     mount() {
@@ -1412,7 +1586,7 @@ SCREENS.dailyIntro = () => {
         <div class="f" style="font-size:calc(27px*var(--k));line-height:1.15;margin-top:10px">Train your brain<br>in 5 minutes!</div>
         <div class="ts" style="color:rgba(255,255,255,.85);margin-top:8px">3 quick rounds. Ready, set, spark!</div>
         <span class="chip f" style="background:#fff;color:#3A2340;height:34px;padding:0 14px;font-size:15px;margin-top:14px">${icon('clock', 18, '#3A2340')} 5:00</span>
-        <img alt="" src="${ASSET.mascot}" style="position:absolute;right:16px;top:0;width:128px">
+        ${myChar('position:absolute;right:16px;top:0;width:128px')}
       </div></div>
     <div class="body" style="padding-top:18px">
       <div class="sec" style="margin-top:0"><span class="h2">Today’s rounds</span><span class="ts" style="color:var(--ink)">3 rounds · 5 min</span></div>
@@ -1429,59 +1603,66 @@ SCREENS.dailyIntro = () => {
   };
 };
 
-function sumQ(level, mixed) {
+function mathCfg(lv) {
+  if (!lv) return { ops: ['+'], max: 9, mul: 5, time: 0, n: 5 };
+  const ops = lv <= 2 ? ['+'] : lv <= 5 ? ['+', '−'] : lv <= 10 ? ['+', '−', '×'] : ['+', '−', '×', '÷'];
+  const max = lv <= 5 ? 10 + lv * 2 : lv <= 10 ? 20 + (lv - 5) * 4 : lv <= 15 ? 50 : 100;
+  const mul = lv <= 7 ? 5 : lv <= 12 ? 9 : 12;
+  const time = lv <= 5 ? 90 : lv <= 10 ? 80 : lv <= 15 ? 70 : 60;
+  return { ops, max, mul, time, n: 10 };
+}
+function sumQ(C) {
   const R = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
-  let op = '+', a, b, ans;
-  if (mixed) op = ['+', '−', '×', '÷'][Math.floor(Math.random() * 4)];
-  else if (level > 1 && Math.random() < .4) op = '−';
-  if (op === '+') { a = R(1, mixed ? 20 : 9); b = R(1, mixed ? 20 : 9); ans = a + b; }
-  else if (op === '−') { a = R(mixed ? 6 : 4, mixed ? 20 : 12); b = R(1, a - 1); ans = a - b; }
-  else if (op === '×') { a = R(2, 9); b = R(2, 9); ans = a * b; }
-  else { b = R(2, 9); ans = R(2, 9); a = b * ans; }
-  const n = mixed ? 4 : 3; const o = new Set([ans]);
-  while (o.size < n) { const v = ans + [-3, -2, -1, 1, 2, 3, 4][Math.floor(Math.random() * 7)] * (op === '×' && Math.random() < .5 ? 2 : 1); if (v >= 0) o.add(v); }
+  const op = C.ops[Math.floor(Math.random() * C.ops.length)]; let a, b, ans;
+  if (op === '+') { a = R(1, Math.floor(C.max * .6)); b = R(1, C.max - a); ans = a + b; }
+  else if (op === '−') { a = R(3, C.max); b = R(1, a - 1); ans = a - b; }
+  else if (op === '×') { a = R(2, C.mul); b = R(2, Math.min(C.mul, 10)); ans = a * b; }
+  else { b = R(2, Math.min(C.mul, 10)); ans = R(2, C.mul); a = b * ans; }
+  const o = new Set([ans]); const sp = ans > 30 ? [-10, -2, -1, 1, 2, 10] : [-3, -2, -1, 1, 2, 3];
+  while (o.size < 4) { const v = ans + sp[Math.floor(Math.random() * sp.length)]; if (v >= 0) o.add(v); }
   return { q: `${a} ${op} ${b}`, op, ans, opts: [...o].sort(() => Math.random() - .5) };
 }
 SCREENS.sums = (p) => {
-  const dc = p.dc, dash = !dc; const N = 5; let n = 0, ok = 0, Q = sumQ(dash ? 2 : 1, dash), left = 60;
-  const OPS = [['+', 'Add'], ['−', 'Subtract'], ['×', 'Multiply'], ['÷', 'Divide']];
-  const opsRow = () => `<div class="opsrow">${OPS.map(([o, l]) => `<span class="opc f ${Q.op === o ? 'on' : ''}"><b>${o}</b>${l}</span>`).join('')}</div>`;
+  const dc = p.dc, lv = p.lv || 0; const C = mathCfg(dc ? 0 : lv || 1); const N = C.n, PASS = 6; let n = 0, ok = 0, Q = sumQ(C);
+  const OPS = [['+', 'Add'], ['−', 'Subtract'], ['×', 'Multiply'], ['÷', 'Divide']].filter(o => C.ops.includes(o[0]));
+  const opsRow = () => `<div class="opsrow" style="grid-template-columns:repeat(${OPS.length},1fr)">${OPS.map(([o, l]) => `<span class="opc f ${Q.op === o ? 'on' : ''}"><b>${o}</b>${l}</span>`).join('')}</div>`;
   const optsHtml = () => Q.opts.map(o => `<button class="qbtn" data-act="pick" data-v="${o}">${o}</button>`).join('');
   return {
-    html: `<div class="deco"></div>${statusBar()}${dc ? playTop('Quick Sums!', 'Tap the right answer', dc) : header({ back: true, title: 'Math Dash', sub: 'Add, subtract, multiply, divide!' })}
+    html: `<div class="deco"></div>${statusBar()}${dc ? playTop('Quick Sums!', 'Tap the right answer', dc) : playTop('Level ' + lv, `${N} questions · ${C.time} seconds`)}
     <div class="body" style="padding-bottom:20px">
-      ${dash ? `<div class="grid3 stat3"><div class="card"><div class="ts">Score</div><div class="f" id="sc">0</div></div><div class="card"><div class="ts">Streak</div><div class="f" id="sk" style="color:var(--org)">x0</div></div><div class="card"><div class="ts">Best</div><div class="f" style="color:#2BAE6B">${S.mathBest}</div></div></div>` :
+      ${!dc ? `<div class="grid3 stat3"><div class="card"><div class="ts">Question</div><div class="f" id="qn">1 / ${N}</div></div><div class="card"><div class="ts">Streak</div><div class="f" id="sk" style="color:var(--org)">x0</div></div><div class="card"><div class="ts">Correct</div><div class="f" id="sc" style="color:#2BAE6B">0</div></div></div>` :
         `<div class="row" style="justify-content:center;gap:6px;margin:4px 0 10px" id="dots">${Array.from({ length: N }, () => `<i style="width:34px;height:8px;border-radius:4px;background:var(--off)"></i>`).join('')}</div>`}
       <div class="mdb">
-        ${dash ? `<div id="ops">${opsRow()}</div>` : ''}
+        ${!dc ? `<div id="ops">${opsRow()}</div>` : ''}
         <div class="mdq f" id="qq">${Q.q} = ?</div>
-        ${dash ? `<div class="bar" style="height:10px;margin:14px 6px 0;background:rgba(255,255,255,.3)"><i id="tb" style="width:100%;background:#FFE38F"></i></div><div class="ts f" style="color:#fff;text-align:center;margin-top:6px" id="tl">1:00 left</div>` : ''}
-        <div class="${dash ? 'grid2' : 'grid3'}" style="margin-top:16px" id="opts">${optsHtml()}</div>
+        ${!dc ? `<div class="bar" style="height:10px;margin:14px 6px 0;background:rgba(255,255,255,.3)"><i id="tb" style="width:100%;background:#FFE38F"></i></div><div class="ts f" style="color:#fff;text-align:center;margin-top:6px" id="tl">${mmss(C.time)} left</div>` : ''}
+        <div class="grid2" style="margin-top:16px" id="opts">${optsHtml()}</div>
       </div>
-      ${tipRow(dash ? 'Answer as many as you can in one minute!' : 'Last round! Tap the right answer.')}
+      ${tipRow(dc ? 'Last round! Tap the right answer.' : `Get ${PASS} of ${N} right to pass. 9 or more = 3 stars!`)}
     </div><div class="hind"></div>`,
     mount(root) {
       root.querySelector('.tip').style.marginTop = '18px'; let streakN = 0;
-      const clock = startClock(root, dc, el => { if (dash) { left = 60 - el; root.querySelector('#tl').textContent = mmss(left) + ' left'; root.querySelector('#tb').style.width = Math.max(0, left / 60 * 100) + '%'; if (left <= 0) end(); } });
+      const clock = startClock(root, dc, el => { if (!dc) { const left = C.time - el; root.querySelector('#tl').textContent = mmss(left) + ' left'; root.querySelector('#tb').style.width = Math.max(0, left / C.time * 100) + '%'; if (left <= 0) end(); } });
       let busy = false, ended = false;
-      const next = () => { Q = sumQ(dash ? 2 : 1, dash); root.querySelector('#qq').textContent = Q.q + ' = ?'; root.querySelector('#opts').innerHTML = optsHtml(); if (dash) root.querySelector('#ops').innerHTML = opsRow(); busy = false; };
+      const next = () => { Q = sumQ(C); root.querySelector('#qq').textContent = Q.q + ' = ?'; root.querySelector('#opts').innerHTML = optsHtml(); if (!dc) { root.querySelector('#ops').innerHTML = opsRow(); root.querySelector('#qn').textContent = `${n + 1} / ${N}`; } busy = false; };
       const end = () => {
         if (ended) return; ended = true; clock.pause(); const secs = clock.secs();
         if (dc) { dc.res.push({ ok, of: N }); setTimeout(() => go('dailyDone', { dc, secs: (Date.now() - dc.t0) / 1000 }, { replace: true }), 500); return; }
-        const reward = Math.min(30, ok * 2); const before = S.sparks; const best = ok > S.mathBest; S.mathBest = Math.max(S.mathBest, ok); addSparks(reward, 'mathdash'); recordGame('mathdash', secs, ok > 0);
-        go('miniResult', { title: 'Time’s up!', sub: best ? 'New best score!' : 'Best score: ' + S.mathBest, big: ok, unit: 'correct', reward, before, again: 'sums' }, { replace: true });
+        S.mathBest = Math.max(S.mathBest, ok);
+        if (ok < PASS) { go('retry', { g: 'mathdash', lv, why: n < N ? `Time ran out! You got ${ok} right. Get ${PASS} to pass.` : `You got ${ok} of ${N}. Get ${PASS} right to pass.` }, { replace: true }); return; }
+        finishLevel('mathdash', lv, ok >= 9 ? 3 : ok >= 7 ? 2 : 1, secs, `${ok}/${N}`, 'Correct', 'Math star!');
       };
       act('pick', t => {
         if (busy || ended) return; busy = true; const good = +t.dataset.v === Q.ans;
         t.classList.add(good ? 'ok' : 'no'); sfx(good ? 'ok' : 'no'); if (good) { ok++; streakN++; } else streakN = 0; n++;
         if (!good) { const c = root.querySelector(`.qbtn[data-v="${Q.ans}"]`); if (c) c.classList.add('ok'); }
         const tm = root.querySelector('#tipmsg'); if (tm) tm.textContent = good ? ['Correct!', 'Super fast!', 'Great math!'][n % 3] : `Almost! ${Q.q} = ${Q.ans}`;
-        if (dash) { root.querySelector('#sc').textContent = ok; root.querySelector('#sk').textContent = 'x' + streakN; }
+        if (!dc) { root.querySelector('#sc').textContent = ok; root.querySelector('#sk').textContent = 'x' + streakN; }
         else { const d = root.querySelectorAll('#dots i')[n - 1]; d.style.background = good ? '#5DB33A' : '#FF6F91'; }
-        setTimeout(() => { if (!dash && n >= N) end(); else if (!ended) next(); }, good ? 450 : 1000);
+        setTimeout(() => { if (n >= N) end(); else if (!ended) next(); }, good ? 450 : 1000);
       });
       act('quitdc', () => { sfx('tap'); go('home', {}, { root: true }); });
-      act('pause', () => {});
+      act('pause', () => { if (dc) return; sfx('tap'); pauseModal(root, clock, 'mathdash', { lv, stats: [['Correct', `${ok}/${N}`], ['Time left', mmss(C.time - clock.secs())]] }, () => render(false)); });
     }
   };
 };
@@ -1497,7 +1678,7 @@ SCREENS.dailyDone = ({ dc, secs }) => {
       <div style="text-align:center;padding-top:20px;position:relative"><div class="f" style="color:var(--yel);font-size:16px">Amazing work, ${S.profile.name}!</div>
       <div class="h1" style="color:#fff;font-size:30px;margin-top:4px">Challenge Complete!</div>
       <div class="row" style="justify-content:center;gap:4px;margin-top:10px;align-items:flex-end">${[0, 1, 2].map(i => starIcon(i === 1 ? 62 : 48, i < stars, 'rgba(255,255,255,.5)')).join('')}</div>
-      <img alt="" src="${ASSET.mascot}" style="width:165px;margin-top:-6px;animation:float 3s ease-in-out infinite"></div></div>
+      ${myChar('width:165px;margin-top:-6px;animation:float 3s ease-in-out infinite')}</div></div>
     <div class="body" style="margin-top:-30px;background:var(--bg);border-radius:30px 30px 0 0;padding-top:22px;position:relative">
       <div class="grid3" style="text-align:center">${[['Time', mmss(secs)], ['Correct', pct + '%'], ['Rounds', '3/3']].map(([a, b]) => `<div class="card" style="padding:10px 4px"><div class="ts" style="color:var(--ink)">${a}</div><div class="f" style="font-size:22px">${b}</div></div>`).join('')}</div>
       <div class="h2" style="margin:18px 0 10px;font-size:17px">You earned</div>
@@ -1515,7 +1696,7 @@ SCREENS.miniResult = (r) => ({
   <div class="body" style="text-align:center;display:flex;flex-direction:column">
     <div class="h1" style="color:#fff;font-size:32px">${r.title}</div><div class="t" style="color:rgba(255,255,255,.85);font-size:16px;margin-top:4px">${r.sub}</div>
     <div class="f" style="font-size:96px;color:#fff;line-height:1;margin-top:24px">${r.big}</div><div class="f" style="color:var(--yel);font-size:18px">${r.unit}</div>
-    <img alt="" src="${ASSET.mascot}" style="width:180px;margin:14px auto 0;animation:float 3s ease-in-out infinite">
+    ${myChar('width:180px;margin:14px auto 0;animation:float 3s ease-in-out infinite')}
     <div class="card row" style="margin-top:12px;padding:14px 18px;text-align:left;background:#fff;color:#3A2340"><span class="ico" style="width:48px;height:48px;border-radius:50%;background:#FFF0C2">${spark(28)}</span><div><div class="f" style="font-size:24px">+${r.reward} sparks</div><div class="ts" style="color:#7A6A7E">Your sparks: ${fmt(r.before)} → ${fmt(r.before + r.reward)}</div></div></div>
     <div style="flex:1;min-height:16px"></div>${btn('Play again', 'b-yel', 'again')}<div style="height:16px"></div>${btn('Back to library', 'b-ghost sm', 'back')}<div style="height:28px"></div>
   </div><div class="hind w"></div>`,
@@ -1530,13 +1711,13 @@ const LIB = [
   { id: 'ballsort', name: 'Ball Sort', sub: 'Sort balls by color', age: 'Ages 7+', price: 2000, bg: '#ECE5FF', foot: '#D5C9FF', play: 'levels', p: { g: 'ballsort' } }
 ];
 function libArt(g, big) {
-  const sz = big ? 1.4 : 1;
+  const sz = typeof big === 'number' ? big : big ? 1.4 : 1;
   if (g.id === 'mathdash') return `<div class="row" style="gap:${6 * sz}px">${['#6ED3DF', '#FFB46B', '#A99BFF', '#FF9FBD'].map((c, i) => `<span class="ltile" style="width:${34 * sz}px;height:${36 * sz}px;font-size:${18 * sz}px;background:${c};color:#fff;transform:rotate(${[-8, 6, -4, 8][i]}deg)">${['3', '×', '4', '?'][i]}</span>`).join('')}</div>`;
   if (g.id === 'blocks') return blocksArt(84 * sz);
   if (g.id === 'ballsort') return tubesArt(104 * sz);
   return `<img alt="" src="${ASSET[g.art]}" style="height:${78 * sz}px">`;
 }
-function libGo(g) { return { go: g.play, p: g.p || { id: g.id } }; }
+function libGo(g) { return { go: 'levels', p: { g: g.id } }; }
 SCREENS.library = () => {
   const mine = [{ id: 'puzzle', name: 'Word Search', sub: 'Find hidden words', bg: 'var(--cyan)', go: 'levels', p: { g: 'puzzle' }, own: 1 }, { id: 'memory', name: 'Memory', sub: 'Remember & match', bg: 'var(--pinkl)', go: 'levels', p: { g: 'memory' }, own: 1 },
     ...LIB.filter(g => S.lib[g.id]).map(g => ({ ...g, ...libGo(g) }))];
@@ -1546,11 +1727,11 @@ SCREENS.library = () => {
     <div class="body">
       <div style="background:var(--pur);color:#fff;border-radius:24px;padding:18px 20px;position:relative;overflow:hidden;height:118px">
         <div class="f" style="font-size:19px">Unlock new games!</div><div class="ts" style="color:rgba(255,255,255,.85);margin-top:4px;max-width:200px">Play every day to earn sparks, then trade them for new adventures.</div>
-        <span class="chip" style="background:rgba(255,255,255,.2);color:#fff;margin-top:8px">${spark(11)} +20 sparks per level</span>
-        <img alt="" src="${ASSET.mascot}" style="position:absolute;right:10px;top:4px;width:104px"></div>
+        <span class="chip" style="background:rgba(255,255,255,.2);color:#fff;margin-top:8px">${spark(11)} +20 to +50 sparks per level</span>
+        ${myChar('position:absolute;right:10px;top:4px;width:104px')}</div>
       <div class="sec"><span class="h2">My games</span><span class="ts" style="color:var(--ink)">${mine.length} unlocked</span></div>
       <div class="grid2">${mine.map(g => `<button class="card row" style="padding:8px;gap:10px;text-align:left" data-go="${g.go}" data-p='${JSON.stringify(g.p)}'>
-        <span style="width:64px;height:64px;border-radius:16px;background:${g.bg};display:grid;place-items:center;overflow:hidden;flex:0 0 auto">${g.own ? gameArt(g.id, g.id === 'memory' ? 58 : 50) : `<span style="transform:scale(.6)">${libArt(g)}</span>`}</span>
+        <span style="width:64px;height:64px;border-radius:16px;background:${g.bg};display:grid;place-items:center;overflow:hidden;flex:0 0 auto">${g.own ? gameArt(g.id, g.id === 'memory' ? 58 : 50) : (g.id === 'mathdash' ? libArt(g, .38) : `<span style="transform:scale(.6);display:block">${libArt(g)}</span>`)}</span>
         <span style="min-width:0"><div class="h3" style="font-size:15px">${g.name}</div><div class="ts" style="font-size:11px">${g.sub}</div><span class="chip f" style="background:var(--mag);color:#fff;margin-top:5px;height:22px">${icon('play', 9, '#fff')} Play</span></span></button>`).join('')}</div>
       ${locked.length ? `<div class="sec"><span class="h2">Unlock with sparks</span><span class="chip f" style="background:var(--card);color:var(--mag)">${locked.length} to unlock</span></div>
       <div class="grid2">${locked.map(g => { const can = S.sparks >= g.price; return `<div><div style="border-radius:22px;overflow:hidden;background:${g.bg};position:relative">
@@ -1590,7 +1771,7 @@ SCREENS.unlocked = ({ id }) => {
       <div class="f" style="color:var(--yel);font-size:17px;margin-top:20px">Yay! You did it!</div><div class="h1" style="color:#fff;font-size:32px">Game Unlocked!</div>
       <div style="width:220px;height:170px;border-radius:24px;background:${g.bg};margin:22px auto 0;display:grid;place-items:center;transform:rotate(-4deg);box-shadow:0 16px 30px rgba(0,0,0,.2);animation:pop .5s;position:relative">${libArt(g, true)}<span class="chip f" style="position:absolute;left:12px;top:12px;background:var(--mag);color:#fff">NEW</span></div>
       <div class="h1" style="color:#fff;margin-top:22px;font-size:26px">${g.name}</div><div class="t" style="color:rgba(255,255,255,.8)">${g.sub} · ${g.age}</div>
-      <img alt="" src="${ASSET.mascot}" style="width:150px;margin:10px auto 0;animation:float 3s ease-in-out infinite">
+      ${myChar('width:150px;margin:10px auto 0;animation:float 3s ease-in-out infinite')}
       <div style="flex:1;min-height:12px"></div>${btn('Play now', 'b-yel', 'play', '', icon('play', 18, '#3A2340'))}
       <div style="margin-top:16px"><button class="f" style="color:#fff;font-size:15px" data-act="lib">Back to library</button></div><div style="height:26px"></div>
     </div><div class="hind w"></div>`,
@@ -1632,28 +1813,47 @@ SCREENS.words = () => {
 
 /* ================= rewards ================= */
 const SHOP = {
-  hats: [{ id: 'party', name: 'Party hat', price: 300, bg: '#ECE7FF' }, { id: 'shades', name: 'Cool shades', price: 450, bg: '#D7F1F6' }, { id: 'crown', name: 'Royal crown', price: 800, bg: '#FFF0C2' }, { id: 'wizard', name: 'Wizard hat', price: 1500, bg: '#EDE8DD' }],
-  avatars: [{ id: 'bronze', name: 'Bronze', price: 400, tag: 'RARE', bg: 'linear-gradient(135deg,#FBE3CF,#F3C7A6)' }, { id: 'silver', name: 'Silver', price: 700, tag: 'RARE', bg: 'linear-gradient(135deg,#EEF2F6,#D5DDE6)' }, { id: 'gold', name: 'Gold', price: 1000, tag: 'EPIC', bg: 'linear-gradient(135deg,#FFF3C4,#FFDB6E)' }, { id: 'galaxy', name: 'Galaxy', price: 1500, tag: 'LEGENDARY', bg: 'linear-gradient(135deg,#3A2A7A,#7B3FB8)' }],
+  hats: [{ id: 'party', name: 'Party hat', price: 300, bg: '#ECE7FF' }, { id: 'crown', name: 'Royal crown', price: 800, bg: '#FFF0C2' }, { id: 'wizard', name: 'Wizard hat', price: 1500, bg: '#EDE8DD' }],
+  glasses: Object.entries(GLASSES).map(([id, g]) => ({ id, name: g.name, price: g.price, bg: '#E8F6FA' })),
+  poses: Object.entries(POSES).map(([id, g]) => ({ id, name: g.name, price: g.price, bg: '#FFE8F2' })),
+  hold: Object.entries(HELD).map(([id, g]) => ({ id, name: g.name, price: g.price, bg: '#E9F7DF' })),
+  avatars: [{ id: 'pink', name: 'Pink', price: 0 }, { id: 'blue', name: 'Blue', price: 0 }, { id: 'purple', name: 'Purple', price: 0 }, { id: 'teal', name: 'Teal', price: 0 }, { id: 'green', name: 'Green', price: 0 }, { id: 'orange', name: 'Orange', price: 0 },
+    { id: 'bronze', name: 'Bronze', price: 400, tag: 'RARE' }, { id: 'silver', name: 'Silver', price: 700, tag: 'RARE' }, { id: 'gold', name: 'Gold', price: 1000, tag: 'EPIC' }, { id: 'galaxy', name: 'Galaxy', price: 1500, tag: 'LEGENDARY' }].map(a => ({ ...a, bg: AVBG[a.id] })),
   themes: [{ id: 'sunny', name: 'Sunny', price: 0, c: ['#FFF5D0', '#7D62E9'] }, { id: 'ocean', name: 'Ocean', price: 500, c: ['#E2F4F8', '#22B5C9'] }, { id: 'candy', name: 'Candy', price: 700, c: ['#FFE8F1', '#C94683'] }, { id: 'night', name: 'Night sky', price: 1500, c: ['#2B2452', '#8B6CF0'] }]
 };
-function itemArt(tab, it) {
-  if (tab === 'hats') return it.id === 'wizard' ? `<div style="width:56px">${wizardHat()}</div>` : `<img alt="" src="${ASSET['hat_' + it.id]}" style="height:${it.id === 'shades' ? 22 : 50}px">`;
-  if (tab === 'avatars') return `<img alt="" src="${ASSET['av_' + it.id]}" style="height:84px">`;
-  return `<div style="width:92px;height:62px;border-radius:10px;background:${it.c[0]};padding:8px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)"><div style="height:8px;width:60%;border-radius:4px;background:${it.c[1]};margin:0 auto 6px"></div><div class="row" style="gap:5px"><i style="flex:1;height:28px;border-radius:6px;background:rgba(255,255,255,.75)"></i><i style="flex:1;height:28px;border-radius:6px;background:rgba(255,255,255,.75)"></i></div></div>`;
+const TABS = [['hats', 'Hats'], ['glasses', 'Glasses'], ['poses', 'Poses'], ['hold', 'Hold'], ['avatars', 'Colors'], ['themes', 'Themes']];
+function prev(tab, id) {
+  if (tab === 'hats') return { hat: id }; if (tab === 'glasses') return { glasses: id }; if (tab === 'poses') return { pose: id };
+  if (tab === 'hold') return { held: id, pose: (S.pose === 'reading' ? 'classic' : S.pose || 'classic') }; return { col: id };
 }
-function ownedKey(tab, id) { return tab === 'hats' ? 'hat_' + id : tab === 'avatars' ? 'av_' + id : id; }
+function itemArt(tab, it) {
+  if (tab === 'themes') return `<div style="width:92px;height:62px;border-radius:10px;background:${it.c[0]};padding:8px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)"><div style="height:8px;width:60%;border-radius:4px;background:${it.c[1]};margin:0 auto 6px"></div><div class="row" style="gap:5px"><i style="flex:1;height:28px;border-radius:6px;background:rgba(255,255,255,.75)"></i><i style="flex:1;height:28px;border-radius:6px;background:rgba(255,255,255,.75)"></i></div></div>`;
+  if (tab === 'hats' || tab === 'glasses') return `<span class="mhead" style="height:100px;width:auto">${charSvg(prev(tab, it.id), true).replace('width:100%;height:auto', 'width:auto;height:100%')}</span>`;
+  return `<span class="mchar" style="height:104px;display:block">${charSvg(prev(tab, it.id)).replace('width:100%;height:auto', 'width:auto;height:100%')}</span>`;
+}
+function ownedKey(tab, id) { return { hats: 'hat_', avatars: 'av_', glasses: 'gl_', poses: 'po_', hold: 'it_' }[tab] ? { hats: 'hat_', avatars: 'av_', glasses: 'gl_', poses: 'po_', hold: 'it_' }[tab] + id : id; }
+function isUsing(tab, id) {
+  const L = look();
+  return { hats: S.hat === id, glasses: L.glasses === id, poses: L.pose === id, hold: L.held === id, avatars: S.profile.avatar === id, themes: S.theme === id }[tab];
+}
+function equip(tab, id) {
+  if (tab === 'hats') S.hat = S.hat === id ? null : id;
+  if (tab === 'glasses') S.glasses = look().glasses === id ? null : id;
+  if (tab === 'poses') S.pose = id;
+  if (tab === 'hold') { S.held = look().held === id ? null : id; if (S.held && S.pose === 'reading') { S.pose = 'classic'; toast(icon('check', 18, '#BDE8A3', 3) + 'Switched to Classic pose so you can hold it'); } }
+  if (tab === 'themes') S.theme = id; if (tab === 'avatars') S.profile.avatar = id;
+}
 SCREENS.rewards = (p) => {
   const tab = p.tab || 'hats'; const today = dkey(); const chestReady = S.chestDay !== today;
   const shown = BADGES.filter(b => S.badges[b.id]).slice(0, 3); const more = 12 - shown.length;
   const items = SHOP[tab].map(it => {
-    const k = ownedKey(tab, it.id); const own = S.owned.includes(k) || it.price === 0;
-    const using = (tab === 'hats' && S.hat === it.id) || (tab === 'avatars' && S.profile.avatar === it.id) || (tab === 'themes' && S.theme === it.id);
-    const can = S.sparks >= it.price;
+    const own = S.owned.includes(ownedKey(tab, it.id)) || it.price === 0; const using = isUsing(tab, it.id); const can = S.sparks >= it.price;
     let foot;
-    if (own) foot = `<button data-act="use" data-id="${it.id}" class="row f" style="width:100%;height:30px;border-radius:15px;justify-content:center;gap:6px;font-size:13px;background:${using ? 'var(--cyan)' : 'var(--card)'};box-shadow:inset 0 0 0 2px ${using ? 'transparent' : 'var(--off)'};color:#3A2340">${using ? icon('check', 14, '#1C94A6', 3) + 'Using' : (tab === 'hats' ? 'Wear' : 'Use')}</button>`;
+    const offable = ['hats', 'glasses', 'hold'].includes(tab);
+    if (own) foot = `<button data-act="use" data-id="${it.id}" class="row f" style="width:100%;height:30px;border-radius:15px;justify-content:center;gap:6px;font-size:13px;background:${using ? 'var(--cyan)' : 'var(--card)'};box-shadow:inset 0 0 0 2px ${using ? 'transparent' : 'var(--off)'};color:#3A2340">${using ? icon('check', 14, '#1C94A6', 3) + (offable ? 'Wearing' : 'Using') : (tab === 'hats' || tab === 'glasses' ? 'Wear' : tab === 'hold' ? 'Hold' : 'Use')}</button>`;
     else if (can) foot = `<button data-act="buy" data-id="${it.id}" class="row f" style="width:100%;height:30px;border-radius:15px;justify-content:center;gap:6px;font-size:13px;background:var(--cream2);color:var(--ink)">${spark(13)} ${fmt(it.price)}</button>`;
     else foot = `<div><div class="bar" style="height:7px"><i style="width:${S.sparks / it.price * 100}%;background:var(--org)"></i></div><div class="f" style="font-size:10.5px;margin-top:5px">${fmt(it.price - S.sparks)} more sparks · ${fmt(it.price)}</div></div>`;
-    return `<div class="tile"><div class="art" style="background:${it.bg || 'var(--track)'}">${itemArt(tab, it)}${it.tag ? `<span class="chip f" style="position:absolute;left:6px;top:6px;height:18px;font-size:9px;background:${it.tag === 'LEGENDARY' ? '#C94683' : it.tag === 'EPIC' ? '#E0A21A' : '#5D4A62'};color:#fff">${it.tag}</span>` : ''}${!own && !can ? `<span style="position:absolute;right:8px;top:8px">${icon('lock', 20, '#3A2340')}</span>` : ''}</div>
+    return `<div class="tile"><div class="art" style="background:${it.bg || 'var(--track)'};overflow:hidden">${itemArt(tab, it)}${it.tag ? `<span class="chip f" style="position:absolute;left:6px;top:6px;height:18px;font-size:9px;background:${it.tag === 'LEGENDARY' ? '#C94683' : it.tag === 'EPIC' ? '#E0A21A' : '#5D4A62'};color:#fff">${it.tag}</span>` : ''}${!own && !can ? `<span style="position:absolute;right:8px;top:8px">${icon('lock', 20, '#3A2340')}</span>` : ''}</div>
       <div class="h3" style="font-size:14px;margin:8px 4px">${it.name}</div>${foot}</div>`;
   }).join('');
   return {
@@ -1665,18 +1865,21 @@ SCREENS.rewards = (p) => {
         <button data-act="chest" class="f" style="margin-top:12px;height:34px;padding:0 18px;border-radius:17px;background:${chestReady ? '#fff' : 'rgba(255,255,255,.22)'};color:${chestReady ? 'var(--mag)' : '#fff'};font-size:14px;white-space:nowrap" ${chestReady ? '' : 'disabled'}>${chestReady ? 'Open chest' : 'Come back tomorrow'}</button>
         <img alt="" src="${ASSET.chest}" style="position:absolute;right:22px;top:50%;margin-top:-40px;width:88px;${chestReady ? 'animation:float 2.4s ease-in-out infinite' : 'filter:saturate(.55) brightness(.95)'}">
         ${chestReady ? '' : `<span style="position:absolute;right:16px;top:50%;margin-top:18px;width:30px;height:30px;border-radius:50%;background:#5DB33A;border:3px solid #fff;display:grid;place-items:center">${icon('check', 14, '#fff', 3.4)}</span>`}</div>
+      <div class="card row" style="margin-top:16px;padding:10px 14px;gap:12px"><span style="width:76px;flex:0 0 auto">${myChar()}</span><div style="flex:1"><div class="h3">Your MindSpark</div><div class="ts">Everything you wear shows up across the app.</div></div></div>
       <div class="h2" style="margin:20px 0 12px">Spend your sparks</div>
-      <div class="tabs">${[['hats', 'Hats & gear'], ['avatars', 'Avatars'], ['themes', 'Themes']].map(([k, l]) => `<button class="${k === tab ? 'on' : ''}" data-act="tab" data-k="${k}">${l}</button>`).join('')}</div>
+      <div class="tabs stabs">${TABS.map(([k, l]) => `<button class="${k === tab ? 'on' : ''}" data-act="tab" data-k="${k}">${l}</button>`).join('')}</div>
+      ${tab === 'hold' ? `<p class="ts" style="margin:10px 4px 0">Held items show in every pose except Bookworm.</p>` : ''}
       <div class="grid2" style="margin-top:14px">${items}</div>
       <div class="sec"><span class="h2">Achievements</span><button class="ts" style="color:var(--mag)" data-go="badges">See all</button></div>
       <button class="card row" data-go="badges" style="width:100%;padding:14px;justify-content:space-around">${shown.map(b => `<span style="text-align:center"><span class="bic" style="background:${b.c}">${icon(b.ic, 24, '#fff')}</span><div class="f" style="font-size:11px;margin-top:6px">${b.name}</div></span>`).join('')}
         <span style="text-align:center"><span class="bic" style="background:var(--lock)">${icon('lock', 22, 'var(--muted)')}</span><div class="f" style="font-size:11px;margin-top:6px">${shown.length ? '+' + more + ' more' : '12 to earn'}</div></span></button>
     </div>${nav('rewards')}`,
     mount(root) {
-      act('tab', t => { sfx('tap'); stack[stack.length - 1].p = { tab: t.dataset.k }; render(false); });
+      const keepScroll = () => { const b = root.querySelector('.body'); const y = b.scrollTop; render(false); document.querySelector('.app .body').scrollTop = y; };
+      act('tab', t => { sfx('tap'); stack[stack.length - 1].p = { tab: t.dataset.k }; keepScroll(); });
       act('buy', t => { const it = SHOP[tab].find(x => x.id === t.dataset.id); if (S.sparks < it.price) return; addSparks(-it.price, 'buy'); S.owned.push(ownedKey(tab, it.id));
-        if (tab === 'hats') S.hat = it.id; if (tab === 'themes') S.theme = it.id; if (tab === 'avatars') S.profile.avatar = it.id; save(); sfx('coin'); toast(icon('check', 18, '#BDE8A3', 3) + `You got the ${it.name}!`); render(false); });
-      act('use', t => { const id = t.dataset.id; if (tab === 'hats') S.hat = S.hat === id ? null : id; if (tab === 'themes') S.theme = id; if (tab === 'avatars') S.profile.avatar = id; save(); sfx('tap'); render(false); });
+        equip(tab, it.id); if (tab === 'hats' && S.hat !== it.id) S.hat = it.id; save(); sfx('coin'); toast(icon('check', 18, '#BDE8A3', 3) + `You got the ${it.name}!`); keepScroll(); });
+      act('use', t => { equip(tab, t.dataset.id); save(); sfx('tap'); keepScroll(); });
       act('chest', () => {
         if (S.chestDay === dkey()) return; const n = [15, 20, 25, 30][Math.floor(Math.random() * 4)];
         const d = document.createElement('div'); d.className = 'dim';
@@ -1766,7 +1969,7 @@ SCREENS.progress = (p) => {
       ${mid}
       <div class="card" style="padding:16px;margin-top:14px"><div class="row" style="justify-content:space-between"><span class="h3">${tab === 'week' ? 'Brain skills' : 'Brain skills this month'}</span></div>
         ${[['Words', pz, 'var(--teal)', 'art_puzzle', 'var(--cyan)'], ['Memory', me, 'var(--mag)', 'art_memory', 'var(--pinkl)']].map(([n, s, c, a, bg]) => `<div class="row" style="margin-top:14px"><span class="ico" style="width:40px;height:40px;background:${bg}">${a === 'art_puzzle' ? wsArt(30) : `<img alt="" src="${ASSET[a]}" style="width:30px">`}</span><div style="flex:1"><div class="row" style="justify-content:space-between"><span class="f" style="font-size:14px">${n} · Level ${s.lvl}</span><span class="f" style="font-size:12px;color:${c}">${s.pct}%</span></div><div class="bar" style="margin-top:6px"><i style="width:${s.pct}%;background:${c}"></i></div></div></div>`).join('')}</div>
-      <div class="row" style="background:var(--pur);color:#fff;border-radius:22px;padding:12px 16px;margin-top:14px"><span class="av" style="width:52px;height:52px;background:var(--pinkl)"><img class="head" alt="" src="${ASSET.head_pink}"></span>
+      <div class="row" style="background:var(--pur);color:#fff;border-radius:22px;padding:12px 16px;margin-top:14px"><span class="av" style="width:52px;height:52px;background:var(--pinkl)">${myHead()}</span>
         <div class="f" style="font-size:14px;line-height:1.35">${st.games ? (best >= 2 ? `${best} days in a row! Can you make it ${best + 1} tomorrow?` : `You played ${st.games} game${st.games > 1 ? 's' : ''} ${tab === 'week' ? 'this week' : 'this month'}. Keep it up!`) : 'Play a game today to fill your chart!'}</div></div>
     </div>${nav('home')}`,
     mount() { act('tab', t => { sfx('tap'); stack[stack.length - 1].p = { tab: t.dataset.k }; render(false); }); }
