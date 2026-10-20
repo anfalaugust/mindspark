@@ -1033,9 +1033,9 @@ SCREENS.intro = ({ g, lv }) => {
       <div style="background:${G.bg};border-radius:28px;height:196px;position:relative;overflow:hidden;padding:22px 20px;color:#3A2340">
         <div style="position:absolute;right:-40px;top:-40px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.3)"></div>
         <span class="chip f" style="background:#fff;color:var(--mag);font-size:12px;height:26px;padding:0 14px">Level ${lv} · ${I.T}</span>
-        <div class="f" style="font-size:calc(24px*var(--k));line-height:1.15;margin-top:12px;max-width:180px;position:relative">${I.title}</div>
+        <div class="f" style="font-size:calc(24px*var(--k));line-height:1.15;margin-top:12px;max-width:175px;position:relative">${I.title}</div>
         <div class="ts" style="margin-top:8px;color:#6B5A70">${I.sub}</div>
-        <div style="position:absolute;right:18px;top:50%;transform:translateY(-50%)">${gameArt(g, g === 'memory' ? 130 : 110)}</div>
+        <div style="position:absolute;right:16px;top:50%;transform:translateY(-50%)">${g === 'mathdash' ? libArt(LIB.find(x => x.id === g), .8) : gameArt(g, g === 'memory' ? 120 : 100)}</div>
       </div>
       <div class="h2" style="margin:22px 4px 12px">How to play</div>
       <div class="card">${I.steps.map((s, i) => `<div class="lrow"><span class="ico" style="background:${s[0]};position:relative">${icon(s[1], 22, s[2])}<span class="f" style="position:absolute;right:-6px;top:-6px;width:18px;height:18px;border-radius:50%;background:#3A2340;color:#fff;font-size:11px;display:grid;place-items:center">${i + 1}</span></span><span style="flex:1"><div class="h3">${s[3]}</div><div class="ts">${s[4]}</div></span></div>`).join('')}</div>
