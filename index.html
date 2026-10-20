@@ -211,6 +211,7 @@ button:focus-visible,[tabindex]:focus-visible,input:focus-visible{outline:3px so
 .coach .spot{position:absolute;border-radius:24px;box-shadow:0 0 0 2000px rgba(42,26,48,.72);outline:3px dashed rgba(255,255,255,.9);outline-offset:5px;transition:all .3s}
 .coach .ctip{position:absolute;left:24px;right:24px;background:#fff;color:#3A2340;border-radius:26px;padding:16px 18px;box-shadow:0 10px 30px rgba(0,0,0,.2)}
 .hand{position:absolute;width:46px;height:56px;pointer-events:none;z-index:26}
+.hand svg{width:100%;height:100%;display:block}
 .mover{animation:move 1.8s ease-in-out infinite}
 @keyframes move{0%{transform:translate(0,0)}55%,70%{transform:translate(var(--dx),var(--dy))}100%{transform:translate(0,0)}}
 .tapper{animation:tapk 1.2s ease-in-out infinite}
@@ -260,7 +261,8 @@ button:focus-visible,[tabindex]:focus-visible,input:focus-visible{outline:3px so
 .lv4.cur .peek{position:absolute;right:-8px;top:-14px;width:30px}
 .lv4.lock{background:var(--lock)}
 .lv4.lock .num{opacity:.25;font-size:24px}
-.lvfoot{position:absolute;left:24px;right:24px;bottom:96px;z-index:3}
+.lvfoot{position:relative;flex:0 0 auto;z-index:3;padding:12px 24px 14px;background:var(--bg);box-shadow:0 -12px 14px -4px var(--bg)}
+.lvfoot .btn{height:54px;font-size:calc(18px*var(--k))}
 /* ---------- v2: pause ---------- */
 .pmodal{width:330px;padding:62px 22px 20px;color:#3A2340;background:#FFF5D0}
 .pmhead{position:absolute;left:50%;top:-52px;transform:translateX(-50%);width:104px;height:104px;border-radius:50%;background:#ECE7FF;border:6px solid #FFF5D0;display:grid;place-items:center}
@@ -742,7 +744,7 @@ function profileForm(edit) {
       <div class="sec" style="margin-top:18px"><span class="h2">Choose your avatar</span><span class="ts" style="color:var(--mag)">Tap to pick</span></div>
       <div class="grid3" id="avg">${list.map(a => `<button class="tile" data-act="pick" data-a="${a}" aria-label="${a} avatar" style="padding:6px;height:96px;${a === sel ? 'box-shadow:inset 0 0 0 3px var(--mag),0 4px 12px rgba(58,35,64,.08)' : ''}">
         <div style="height:100%;border-radius:18px;background:${AVBG[a]};display:grid;place-items:center"><span class="mhead" style="width:82%">${charSvg({ col: a }, true)}</span></div>
-        ${a === sel ? `<span style="position:absolute;right:-4px;top:-4px;width:26px;height:26px;border-radius:50%;background:var(--mag);border:3px solid #fff;display:grid;place-items:center">${icon('check', 14, '#fff', 3.4)}</span>` : ''}</button>`).join('')}</div>
+        ${a === sel ? `<span class="ckb" style="position:absolute;right:-4px;top:-4px;width:26px;height:26px;border-radius:50%;background:var(--mag);border:3px solid #fff;display:grid;place-items:center">${icon('check', 14, '#fff', 3.4)}</span>` : ''}</button>`).join('')}</div>
       <div class="sec" style="margin-top:26px"><span class="h2">Your nickname</span><span class="ts" id="cnt">${name.length}/12</span></div>
       <label class="input"><input id="nick" maxlength="12" placeholder="Type your nickname" value="${name.replace(/"/g, '')}" autocomplete="off" aria-label="Your nickname">
         <button data-act="clear" aria-label="Clear name" style="width:30px;height:30px;border-radius:50%;background:#E9DFC4;display:${name ? 'grid' : 'none'};place-items:center" id="clr">${icon('x', 14, '#3A2340', 3)}</button></label>
@@ -757,8 +759,8 @@ function profileForm(edit) {
       inp.addEventListener('input', upd);
       act('clear', () => { inp.value = ''; upd(); inp.focus(); });
       act('pick', t => { sfx('tap'); sel = t.dataset.a; root.querySelector('#pv').innerHTML = myChar('', { col: sel });
-        root.querySelectorAll('#avg .tile').forEach(x => { const on = x.dataset.a === sel; x.style.boxShadow = on ? 'inset 0 0 0 3px var(--mag),0 4px 12px rgba(58,35,64,.08)' : ''; x.querySelector('span')?.remove();
-          if (on) x.insertAdjacentHTML('beforeend', `<span style="position:absolute;right:-4px;top:-4px;width:26px;height:26px;border-radius:50%;background:var(--mag);border:3px solid #fff;display:grid;place-items:center">${icon('check', 14, '#fff', 3.4)}</span>`); }); });
+        root.querySelectorAll('#avg .tile').forEach(x => { const on = x.dataset.a === sel; x.style.boxShadow = on ? 'inset 0 0 0 3px var(--mag),0 4px 12px rgba(58,35,64,.08)' : ''; x.querySelector('.ckb')?.remove();
+          if (on) x.insertAdjacentHTML('beforeend', `<span class="ckb" style="position:absolute;right:-4px;top:-4px;width:26px;height:26px;border-radius:50%;background:var(--mag);border:3px solid #fff;display:grid;place-items:center">${icon('check', 14, '#fff', 3.4)}</span>`); }); });
       act('done', () => {
         if (!name.trim()) { root.querySelector('#help').textContent = 'Type a nickname first, then tap the button.'; root.querySelector('#help').style.color = 'var(--mag)'; return; }
         sfx('ok'); const first = !S.profile; S.profile = { name: name.trim(), avatar: sel }; save();
@@ -990,7 +992,7 @@ SCREENS.levels = ({ g }) => {
       <div class="lvgrid">${Array.from({ length: z - a + 1 }, (_, i) => tile(a + i)).join('')}</div>`).join('');
   return {
     html: `<div class="deco"></div>${statusBar()}${header({ back: true, title: G.title })}
-    <div class="body" style="padding-bottom:110px">
+    <div class="body" style="padding-bottom:20px">
       <div class="lvhero"><div style="position:relative;z-index:1;max-width:205px"><div class="f" style="font-size:calc(22px*var(--k))">Choose a level</div><div class="ts" style="color:rgba(255,255,255,.85);margin-top:2px">${G.sub}</div>
         <div class="bar" style="margin-top:12px;height:9px;background:rgba(255,255,255,.25)"><i style="width:${doneN / 20 * 100}%;background:var(--yel)"></i></div>
         <div class="row" style="margin-top:10px;gap:8px"><span class="f" style="font-size:12px">${doneN} of 20 done</span><span class="chip f" style="background:rgba(255,255,255,.2);color:#fff">${starIcon(12)} ${totalStars(g)} / 60</span></div></div>
@@ -1108,16 +1110,17 @@ function pauseModal(root, clock, g, info, restart) {
 function backTo(name) { while (stack.length > 1 && stack[stack.length - 1].name !== name) stack.pop(); render(true); }
 function coach(root, steps, done) {
   let i = 0; const c = document.createElement('div'); c.className = 'coach'; root.appendChild(c);
-  const app = root.getBoundingClientRect(), sc = app.width / root.offsetWidth;
+  let app, sc;
   const show = () => {
+    root.getAnimations().forEach(an => an.finish()); app = root.getBoundingClientRect(); sc = app.width / root.offsetWidth;
     const s = steps[i]; const els = s.els.map(q => root.querySelector(q)).filter(Boolean);
     const rs = els.map(e => e.getBoundingClientRect());
     const L = Math.min(...rs.map(r => r.left)), T = Math.min(...rs.map(r => r.top)), R = Math.max(...rs.map(r => r.right)), B = Math.max(...rs.map(r => r.bottom));
-    const x = (L - app.left) / sc - 8, y = (T - app.top) / sc - 8, w = (R - L) / sc + 16, h = (B - T) / sc + 16;
+    const pd = s.pad ?? 8; const x = (L - app.left) / sc - pd, y = (T - app.top) / sc - pd, w = (R - L) / sc + 2 * pd, h = (B - T) / sc + 2 * pd;
     const tipTop = s.tipAt === 'top' ? 66 : s.tipAt === 'below' ? y + h + 16 : y - 170;
     let hand = '';
-    if (s.hand) { const f = s.hand(app, sc); hand = `<div class="hand ${f.dx ? 'mover' : 'tapper'}" style="left:${f.x}px;top:${f.y}px;--dx:${f.dx || 0}px;--dy:${f.dy || 0}px">${handSvg()}</div>`; }
-    c.innerHTML = `<div class="spot" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px"></div>${hand}
+    if (s.hand) { const f = s.hand(app, sc); const hs = f.size || 46; hand = `<div class="hand ${f.dx || f.dy ? 'mover' : 'tapper'}" style="left:${f.x}px;top:${f.y}px;width:${hs}px;height:${hs * 56 / 46}px;--dx:${f.dx || 0}px;--dy:${f.dy || 0}px">${handSvg()}</div>`; }
+    c.innerHTML = `<div class="spot" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;${s.tight ? 'border-radius:' + Math.min(w, h) / 2 + 'px;outline-offset:3px' : ''}"></div>${hand}
       <div class="ctip" style="top:${tipTop}px"><div class="row" style="align-items:flex-start"><span class="av" style="width:44px;height:44px;background:#FFE0EE">${myHead()}</span><div style="flex:1"><div class="f" style="font-size:18px">${s.title}</div><div class="t" style="margin-top:3px;line-height:1.4;color:#7A6A7E">${s.text}</div></div></div>
       <div class="row" style="margin-top:12px"><span class="row" style="gap:6px;flex:1">${steps.length > 1 ? steps.map((_, k) => `<i style="width:${k === i ? 18 : 8}px;height:8px;border-radius:4px;background:${k === i ? '#C94683' : '#E9DFC4'}"></i>`).join('') : ''}</span>
       ${i < steps.length - 1 ? `<button class="ts" style="margin-right:16px;color:#9C919F;font-size:14px" data-act="cskip">Skip</button>` : ''}
@@ -1293,9 +1296,10 @@ SCREENS.puzzle = (p) => {
         clock.pause(); const f = order[0];
         coach(root, [
           { els: ['#wsw'], title: 'These are your words', text: 'Find every word from this list in the letters below.', tipAt: 'below' },
-          { els: [`.wsc[data-r="${f.r0}"][data-c="${f.c0}"]`, `.wsc[data-r="${f.r0 + f.dr * (f.w.length - 1)}"][data-c="${f.c0 + f.dc * (f.w.length - 1)}"]`], title: 'Swipe across the word', text: `Put your finger on the first letter of ${f.w} and slide to the last one.`, tipAt: 'top',
+          { els: [`.wsc[data-r="${f.r0}"][data-c="${f.c0}"]`, `.wsc[data-r="${f.r0 + f.dr * (f.w.length - 1)}"][data-c="${f.c0 + f.dc * (f.w.length - 1)}"]`], title: 'Swipe across the word', text: `Put your finger on the first letter of ${f.w} and slide to the last one.`, tipAt: 'top', pad: 3, tight: true,
             hand: (a, sc) => { const s0 = cell(f.r0, f.c0).getBoundingClientRect(), s1 = cell(f.r0 + f.dr * (f.w.length - 1), f.c0 + f.dc * (f.w.length - 1)).getBoundingClientRect();
-              return { x: (s0.left - a.left) / sc + 6, y: (s0.top - a.top) / sc + 10, dx: (s1.left - s0.left) / sc, dy: (s1.top - s0.top) / sc }; } }
+              const hs = Math.max(26, Math.min(34, s0.width / sc * .75)); const cx = (s0.left + s0.width / 2 - a.left) / sc, cy = (s0.top + s0.height / 2 - a.top) / sc;
+              return { size: hs, x: cx - hs * .5, y: cy - hs * .04, dx: (s1.left - s0.left) / sc, dy: (s1.top - s0.top) / sc }; } }
         ], () => { S.puzzle.tut = true; save(); if (p.demo) back(); else clock.resume(); });
       }
     }
