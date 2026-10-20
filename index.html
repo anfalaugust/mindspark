@@ -607,11 +607,36 @@ function glassesSvg(id) {
   return [frame('#fff', .22) + arms, ''];
 }
 let _hatImg = {};
+const HATS2 = {
+  party: { cols: ['#8B6CF0', '#FFC93C', '#FF6F91', '#22B5C9'], pat: 'bands', pom: '#FF6F91' },
+  bday_pink: { cols: ['#FF7EB6'], pat: 'dots', dot: '#fff', pom: '#FFC93C' },
+  bday_blue: { cols: ['#3BA9FF', '#FFE14D'], pat: 'stripes', pom: '#FF6F91' },
+  bday_green: { cols: ['#4CD964'], pat: 'dots', dot: '#FFE14D', pom: '#8B6CF0' },
+  bday_gold: { cols: ['#FFC93C'], pat: 'stars', dot: '#fff', pom: '#E53935' }
+};
+function coneHat(H) {
+  const bx = 450, by = 184, tip = -90, hw = 124; const W = y => hw * (y - tip) / (by - tip);
+  const cone = `M${bx} ${tip}L${bx + hw} ${by}Q${bx} ${by + 26} ${bx - hw} ${by}Z`;
+  let g = `<path d="${cone}" fill="${H.cols[0]}"/>`;
+  if (H.pat === 'bands' || H.pat === 'stripes') {
+    const n = H.pat === 'bands' ? 4 : 5; const cs = H.pat === 'bands' ? H.cols : [H.cols[1]];
+    for (let i = 0; i < n; i++) { const y0 = tip + (by - tip) * (i + .35) / n, y1 = y0 + (by - tip) / n * .42; const c = cs[(i + 1) % cs.length];
+      g += `<path d="M${bx - W(y0)} ${y0}L${bx + W(y0)} ${y0 - 10}L${bx + W(y1)} ${y1 - 10}L${bx - W(y1)} ${y1}Z" fill="${c}"/>`; }
+  } else {
+    const pts = [[-40, 120], [30, 70], [-10, 20], [55, 140], [-70, 160], [10, 150], [-25, 85]];
+    pts.forEach(([dx, y]) => { if (Math.abs(dx) < W(y) - 14) g += H.pat === 'stars' ? `<path d="${starD(bx + dx, y, 14)}" fill="${H.dot}"/>` : `<circle cx="${bx + dx}" cy="${y}" r="10" fill="${H.dot}"/>`; });
+  }
+  g += `<path d="M${bx - hw} ${by}Q${bx} ${by + 26} ${bx + hw} ${by}" stroke="#fff" stroke-width="12" stroke-linecap="round" fill="none" opacity=".9"/>`;
+  g += `<circle cx="${bx}" cy="${tip - 6}" r="24" fill="${H.pom}"/><circle cx="${bx - 8}" cy="${tip - 14}" r="7" fill="#fff" opacity=".55"/>`;
+  return g;
+}
 function hatSvg(h) {
   if (!h) return '';
-  if (h === 'party') return `<image href="${ASSET.hat_party}" x="420" y="-92" width="220" height="252" transform="rotate(14 530 40)"/>`;
+  if (HATS2[h]) return coneHat(HATS2[h]);
   if (h === 'crown') return `<image href="${ASSET.hat_crown}" x="305" y="-20" width="290" height="222"/>`;
-  if (h === 'wizard') return `<g transform="translate(284 -150) scale(5.55)"><path d="M30 2C36 16 42 30 46 44H14C18 30 24 16 30 2z" fill="#A78BFA"/><path d="${starPts(31, 24, 7)}" fill="#FFC93C"/><ellipse cx="30" cy="46" rx="29" ry="8" fill="#8B6CF0"/></g>`;
+  if (h === 'wizard') return `<path d="M456 -118C470 -40 520 60 560 168H340C372 70 410 -20 456 -118Z" fill="#A78BFA"/><path d="M456 -118C440 -110 420 -96 404 -70" stroke="#A78BFA" stroke-width="18" stroke-linecap="round" fill="none"/>
+    <path d="${starD(470, 70, 30)}" fill="#FFC93C"/><circle cx="420" cy="0" r="8" fill="#FFE38F"/><circle cx="500" cy="120" r="7" fill="#FFE38F"/>
+    <ellipse cx="450" cy="176" rx="170" ry="30" fill="#8B6CF0"/><path d="M350 160Q450 186 550 160" stroke="#FFC93C" stroke-width="12" fill="none"/>`;
   return '';
 }
 function heldSvg(k, hx, hy) {
@@ -641,7 +666,7 @@ function charSvg(o = {}, head = false) {
     .replace(/%GC%/g, (GLASSES[L.glasses] || GLASSES.red).c).replace('%GLB%', glb).replace('%GLA%', gla).replace('%HAT%', hatSvg(L.hat))
     .replace('%HELD%', P.hand ? heldSvg(L.held, P.hand[0], P.hand[1]) : '');
   const P2 = CPOSE[L.pose] || CPOSE.classic; const dyJ = L.pose === 'jump' ? -60 : 0;
-  let top = -40; if (L.hat) top = Math.min(top, (L.hat === 'wizard' ? -170 : -110) + (head ? 0 : dyJ));
+  let top = -40; if (L.hat) top = Math.min(top, (L.hat === 'wizard' ? -160 : -120) + (head ? 0 : dyJ));
   if (!head && P2.hand && L.held && L.held !== 'wand') top = Math.min(top, P2.hand[1] + dyJ - (L.held === 'balloon' ? 440 : 300));
   const vb = head ? `140 ${Math.min(-40, top)} 620 ${620 - Math.min(0, top + 40)}` : `120 ${top} 780 ${880 - (top + 40)}`;
   if (L.col === 'galaxy') { const dy = L.pose === 'jump' && !head ? -60 : 0; s += `<g fill="#FFE38F" transform="translate(0 ${dy})"><path d="${starD(300, 280, 12)}"/><path d="${starD(590, 230, 9)}"/><path d="${starD(620, 430, 11)}"/></g>`; }
@@ -654,7 +679,7 @@ function avatar(size, opts = {}) {
   return `<div class="av ${opts.ring ? 'ring' : ''}" style="width:${size}px;height:${size}px;background:${AVBG[a]}"><span class="mhead" style="width:86%;margin-top:6%">${charSvg({ col: a, hat: opts.hat }, true)}</span></div>`;
 }
 /* ================= v3: level rewards ================= */
-function lvReward(lv) { return lv <= 5 ? 20 : lv <= 10 ? 30 : lv <= 15 ? 40 : 50; }
+function lvReward(lv) { return 50 + (lv - 1) * 20; }
 const TIERS = [['Easy', 1, 5], ['Medium', 6, 10], ['Hard', 11, 15], ['Expert', 16, 20]];
 function finishLevel(g, lv, stars, secs, stat, statLabel, msg) {
   const st = S[g]; const first = !st.stars[lv]; const wasNew = lv === st.unlocked && lv < 20;
@@ -691,7 +716,7 @@ SCREENS.welcome = () => ({
     <div style="position:relative;width:300px;height:290px;margin-top:10px;display:grid;place-items:center">
       <div style="position:absolute;width:268px;height:268px;border-radius:50%;background:rgba(255,232,154,.55)"></div>
       <div style="position:absolute;width:208px;height:208px;border-radius:50%;background:rgba(255,255,255,.5)"></div>
-      ${myChar('position:relative;width:288px;animation:float 3.2s ease-in-out infinite')}
+      ${myChar('position:relative;width:190px;margin-top:22px;animation:float 3.2s ease-in-out infinite')}
     </div>
     <div class="h1" style="font-size:calc(32px*var(--k));margin-top:6px">Hi there, friend!</div>
     <p class="t" style="font-size:calc(16px*var(--k));margin:10px 0 0;line-height:1.4">Play fun brain games, collect sparks<br>and unlock new adventures every day.</p>
@@ -860,7 +885,7 @@ SCREENS.help = () => ({
     </div>
     <div class="card" style="margin-top:16px;padding:18px">
       <div class="row"><span class="ico" style="background:var(--cream2)">${spark(22)}</span><div class="h3">How sparks work</div></div>
-      <p class="t" style="margin:12px 0 0;line-height:1.5">Finish a level to earn 20 to 50 sparks (harder levels give more), plus 5 extra for 3 stars. Replays give 5. The daily challenge gives 50 more. Spend sparks in Rewards on hats, avatars and themes, or unlock new games in the Game Library.</p>
+      <p class="t" style="margin:12px 0 0;line-height:1.5">Level 1 gives 50 sparks, and every level after gives 20 more (70, 90, 110…). Get 3 stars for 5 extra. Replays give 5. The daily challenge gives 50 more. Spend sparks in Rewards on hats, avatars and themes, or unlock new games in the Game Library.</p>
     </div>
     <div class="card" style="margin-top:16px;padding:18px">
       <div class="row"><span class="ico" style="background:var(--peach)"><img alt="" src="${ASSET.flame}" style="width:30px"></span><div class="h3">Keep your streak</div></div>
@@ -961,7 +986,7 @@ SCREENS.levels = ({ g }) => {
     if (n === st.unlocked) return `<button class="lv4 cur" data-act="lv" data-n="${n}" aria-label="Level ${n}, play"><span class="f num">${n}</span><span class="chip f" style="background:#fff;color:#3A2340;height:20px;padding:0 7px;font-size:10px">${icon('play', 8, '#3A2340')} Play</span><span class="peek">${myHead()}</span></button>`;
     return `<button class="lv4 lock" data-act="lockd" aria-label="Level ${n}, locked"><span class="f num">${n}</span>${icon('lock', 16, '#B9A98A', 2.6)}</button>`;
   };
-  const sections = TIERS.map(([name, a, z], ti) => `<div class="sec"><span class="h2">${name}</span><span class="chip f" style="background:var(--cream2);color:var(--ink)">${spark(11)} +${lvReward(a)} per level</span></div>
+  const sections = TIERS.map(([name, a, z], ti) => `<div class="sec"><span class="h2">${name}</span><span class="chip f" style="background:var(--cream2);color:var(--ink)">${spark(11)} +${lvReward(a)} to +${lvReward(z)}</span></div>
       <div class="lvgrid">${Array.from({ length: z - a + 1 }, (_, i) => tile(a + i)).join('')}</div>`).join('');
   return {
     html: `<div class="deco"></div>${statusBar()}${header({ back: true, title: G.title })}
@@ -970,7 +995,7 @@ SCREENS.levels = ({ g }) => {
         <div class="bar" style="margin-top:12px;height:9px;background:rgba(255,255,255,.25)"><i style="width:${doneN / 20 * 100}%;background:var(--yel)"></i></div>
         <div class="row" style="margin-top:10px;gap:8px"><span class="f" style="font-size:12px">${doneN} of 20 done</span><span class="chip f" style="background:rgba(255,255,255,.2);color:#fff">${starIcon(12)} ${totalStars(g)} / 60</span></div></div>
         <div class="lvart" style="--as:${g === 'mathdash' ? .62 : 1}">${gameArt(g, g === 'memory' ? 120 : 96)}</div></div>
-      <p class="ts" style="margin:12px 4px 0">${G.levelNote} Harder levels give more sparks!</p>
+      <p class="ts" style="margin:12px 4px 0">${G.levelNote} Every level gives 20 more sparks than the last!</p>
       ${sections}
     </div>
     <div class="lvfoot">${btn(`Play Level ${st.unlocked}`, 'b-yel', 'playcur', '', icon('play', 18, '#3A2340'))}</div>${nav('games')}`,
@@ -1559,7 +1584,7 @@ SCREENS.result = (r) => {
       <div class="grid3" style="text-align:center;gap:10px">${[['Time', mmss(r.secs)], [r.statLabel || 'Moves', r.stat], ['Stars', r.stars + ' / 3']].map(([a, b]) => `<div class="card" style="padding:10px 4px"><div class="ts" style="color:var(--ink)">${a}</div><div class="f" style="font-size:22px">${b}</div></div>`).join('')}</div>
       <div class="h2" style="margin:16px 0 8px;font-size:17px">You earned</div>
       <div class="row" style="background:var(--cream2);border-radius:20px;padding:12px 16px">${spark(30)}<div style="flex:1"><div class="f" style="font-size:20px">+${total} sparks</div><div class="ts">${r.bonus ? `${r.reward} for the level + ${r.bonus} for 3 stars` : `Your sparks: ${fmt(r.before)} → ${fmt(r.before + total)}`}</div></div>${r.bonus ? `<span class="chip f" style="background:#fff;color:#E0601A">Total ${fmt(r.before + total)}</span>` : ''}</div>
-      ${r.unlockedNext ? `<div class="card row" style="padding:12px 14px;margin-top:10px"><span class="f" style="width:52px;height:52px;border-radius:16px;background:var(--yel);display:grid;place-items:center;font-size:26px;color:#3A2340;flex:0 0 auto">${r.lv + 1}</span><div><div class="f" style="font-size:17px">Level ${r.lv + 1} unlocked!</div><div class="ts">${lvReward(r.lv + 1) > lvReward(r.lv) ? `New tier! Each level now gives +${lvReward(r.lv + 1)} sparks` : 'A little trickier. You’ve got this!'}</div></div></div>` : ''}
+      ${r.unlockedNext ? `<div class="card row" style="padding:12px 14px;margin-top:10px"><span class="f" style="width:52px;height:52px;border-radius:16px;background:var(--yel);display:grid;place-items:center;font-size:26px;color:#3A2340;flex:0 0 auto">${r.lv + 1}</span><div><div class="f" style="font-size:17px">Level ${r.lv + 1} unlocked!</div><div class="ts">Worth +${lvReward(r.lv + 1)} sparks. You’ve got this!</div></div></div>` : ''}
       <div style="height:16px"></div>
       ${r.lv < 20 ? btn('Next level', 'b-yel', 'next', '', icon('play', 18, '#3A2340')) : btn('Back to levels', 'b-yel', 'toLevels')}
       <div class="grid2" style="margin-top:12px">${btn('Replay', 'b-white sm', 'again', 'style="height:50px;font-size:16px"', icon('restart', 18, '#3A2340'))}${btn('All levels', 'b-white sm', 'toLevels', 'style="height:50px;font-size:16px"', icon('games', 18, '#3A2340'))}</div>
@@ -1705,10 +1730,10 @@ SCREENS.miniResult = (r) => ({
 
 /* ================= game library ================= */
 const LIB = [
-  { id: 'mathdash', name: 'Math Dash', sub: 'Mixed math race', age: 'Ages 6+', price: 600, bg: '#E6F7DA', foot: '#BDE8A3', play: 'sums' },
-  { id: 'blocks', name: 'Count the Blocks', sub: 'Count every block', age: 'Ages 6+', price: 900, bg: '#FFE7CF', foot: '#FFCB98', play: 'blocks' },
-  { id: 'matrix', name: 'Memory Matrix', sub: 'Remember the pattern', age: 'Ages 7+', price: 1500, bg: '#E5E9FF', foot: '#BFC8FF', play: 'matrix', art: 'art_matrix' },
-  { id: 'ballsort', name: 'Ball Sort', sub: 'Sort balls by color', age: 'Ages 7+', price: 2000, bg: '#ECE5FF', foot: '#D5C9FF', play: 'levels', p: { g: 'ballsort' } }
+  { id: 'mathdash', name: 'Math Dash', sub: 'Mixed math race', price: 300, bg: '#E6F7DA', foot: '#BDE8A3', play: 'sums' },
+  { id: 'blocks', name: 'Count the Blocks', sub: 'Count every block', price: 500, bg: '#FFE7CF', foot: '#FFCB98', play: 'blocks' },
+  { id: 'matrix', name: 'Memory Matrix', sub: 'Remember the pattern', price: 700, bg: '#E5E9FF', foot: '#BFC8FF', play: 'matrix', art: 'art_matrix' },
+  { id: 'ballsort', name: 'Ball Sort', sub: 'Sort balls by color', price: 1000, bg: '#ECE5FF', foot: '#D5C9FF', play: 'levels', p: { g: 'ballsort' } }
 ];
 function libArt(g, big) {
   const sz = typeof big === 'number' ? big : big ? 1.4 : 1;
@@ -1727,7 +1752,7 @@ SCREENS.library = () => {
     <div class="body">
       <div style="background:var(--pur);color:#fff;border-radius:24px;padding:18px 20px;position:relative;overflow:hidden;height:118px">
         <div class="f" style="font-size:19px">Unlock new games!</div><div class="ts" style="color:rgba(255,255,255,.85);margin-top:4px;max-width:200px">Play every day to earn sparks, then trade them for new adventures.</div>
-        <span class="chip" style="background:rgba(255,255,255,.2);color:#fff;margin-top:8px">${spark(11)} +20 to +50 sparks per level</span>
+        <span class="chip" style="background:rgba(255,255,255,.2);color:#fff;margin-top:8px">${spark(11)} Levels give +50 sparks and up</span>
         ${myChar('position:absolute;right:10px;top:4px;width:104px')}</div>
       <div class="sec"><span class="h2">My games</span><span class="ts" style="color:var(--ink)">${mine.length} unlocked</span></div>
       <div class="grid2">${mine.map(g => `<button class="card row" style="padding:8px;gap:10px;text-align:left" data-go="${g.go}" data-p='${JSON.stringify(g.p)}'>
@@ -1735,7 +1760,7 @@ SCREENS.library = () => {
         <span style="min-width:0"><div class="h3" style="font-size:15px">${g.name}</div><div class="ts" style="font-size:11px">${g.sub}</div><span class="chip f" style="background:var(--mag);color:#fff;margin-top:5px;height:22px">${icon('play', 9, '#fff')} Play</span></span></button>`).join('')}</div>
       ${locked.length ? `<div class="sec"><span class="h2">Unlock with sparks</span><span class="chip f" style="background:var(--card);color:var(--mag)">${locked.length} to unlock</span></div>
       <div class="grid2">${locked.map(g => { const can = S.sparks >= g.price; return `<div><div style="border-radius:22px;overflow:hidden;background:${g.bg};position:relative">
-        <div style="height:112px;display:grid;place-items:center;opacity:.85">${libArt(g)}</div><span class="chip f" style="position:absolute;left:10px;top:10px;background:#fff;color:var(--mag)">${g.age}</span><span style="position:absolute;right:10px;top:10px;width:30px;height:30px;border-radius:50%;background:#fff;display:grid;place-items:center">${icon('lock', 16, '#3A2340')}</span>
+        <div style="height:112px;display:grid;place-items:center;opacity:.85">${libArt(g)}</div><span style="position:absolute;right:10px;top:10px;width:30px;height:30px;border-radius:50%;background:#fff;display:grid;place-items:center">${icon('lock', 16, '#3A2340')}</span>
         <div style="background:${g.foot};padding:10px 12px 12px;color:#3A2340"><div class="f" style="font-size:15px">${g.name}</div><div class="ts" style="font-size:11px;color:#5D4A62">${g.sub}</div>
         ${can ? `<button data-act="unl" data-id="${g.id}" class="row f" style="margin-top:8px;width:100%;height:32px;border-radius:16px;background:var(--yel);box-shadow:inset 0 0 0 2px var(--yeld);justify-content:space-between;padding:0 4px 0 14px;font-size:13px">Unlock <span class="row" style="gap:4px;background:#fff;border-radius:12px;padding:3px 10px">${spark(12)} ${fmt(g.price)}</span></button>`
           : `<div class="row" style="margin-top:10px;gap:8px;background:#fff;border-radius:14px;padding:6px 10px"><div class="bar" style="height:7px"><i style="width:${Math.min(100, S.sparks / g.price * 100)}%;background:var(--org)"></i></div><span class="f row" style="font-size:12px;gap:3px">${spark(11, '#9C919F')}${fmt(g.price)}</span></div>`}</div></div>
@@ -1749,7 +1774,7 @@ SCREENS.library = () => {
         const d = document.createElement('div'); d.className = 'dim'; d.style.alignItems = 'flex-end';
         d.innerHTML = `<div class="sheet" role="dialog" aria-label="Unlock ${g.name}" style="text-align:center"><div style="width:44px;height:5px;border-radius:3px;background:var(--off);margin:0 auto 16px"></div>
           <div style="width:150px;height:110px;border-radius:22px;background:${g.bg};display:grid;place-items:center;margin:0 auto;position:relative">${libArt(g)}<span style="position:absolute;right:-8px;top:-8px">${icon('lock', 22, '#3A2340')}</span></div>
-          <div class="h1" style="margin-top:16px;font-size:24px">Unlock ${g.name}?</div><div class="ts" style="margin-top:4px">${g.sub} · ${g.age}</div>
+          <div class="h1" style="margin-top:16px;font-size:24px">Unlock ${g.name}?</div><div class="ts" style="margin-top:4px">${g.sub}</div>
           <div class="card" style="margin-top:16px;padding:12px 14px"><div class="row" style="justify-content:space-between"><div><div class="ts" style="color:var(--ink)">Your sparks</div><div class="f row" style="gap:4px;font-size:17px">${spark(14)}${fmt(S.sparks)}</div></div><span class="tm">›</span>
             <div><div class="ts" style="color:var(--ink)">Price</div><div class="f" style="font-size:17px;background:var(--cream2);border-radius:12px;padding:2px 10px;color:#E0601A">−${fmt(g.price)}</div></div><span class="tm">›</span>
             <div><div class="ts" style="color:var(--ink)">After</div><div class="f row" style="gap:4px;font-size:17px">${spark(14)}${fmt(after)}</div></div></div>
@@ -1770,7 +1795,7 @@ SCREENS.unlocked = ({ id }) => {
     <div class="body" style="text-align:center;display:flex;flex-direction:column">
       <div class="f" style="color:var(--yel);font-size:17px;margin-top:20px">Yay! You did it!</div><div class="h1" style="color:#fff;font-size:32px">Game Unlocked!</div>
       <div style="width:220px;height:170px;border-radius:24px;background:${g.bg};margin:22px auto 0;display:grid;place-items:center;transform:rotate(-4deg);box-shadow:0 16px 30px rgba(0,0,0,.2);animation:pop .5s;position:relative">${libArt(g, true)}<span class="chip f" style="position:absolute;left:12px;top:12px;background:var(--mag);color:#fff">NEW</span></div>
-      <div class="h1" style="color:#fff;margin-top:22px;font-size:26px">${g.name}</div><div class="t" style="color:rgba(255,255,255,.8)">${g.sub} · ${g.age}</div>
+      <div class="h1" style="color:#fff;margin-top:22px;font-size:26px">${g.name}</div><div class="t" style="color:rgba(255,255,255,.8)">${g.sub}</div>
       ${myChar('width:150px;margin:10px auto 0;animation:float 3s ease-in-out infinite')}
       <div style="flex:1;min-height:12px"></div>${btn('Play now', 'b-yel', 'play', '', icon('play', 18, '#3A2340'))}
       <div style="margin-top:16px"><button class="f" style="color:#fff;font-size:15px" data-act="lib">Back to library</button></div><div style="height:26px"></div>
@@ -1813,7 +1838,7 @@ SCREENS.words = () => {
 
 /* ================= rewards ================= */
 const SHOP = {
-  hats: [{ id: 'party', name: 'Party hat', price: 300, bg: '#ECE7FF' }, { id: 'crown', name: 'Royal crown', price: 800, bg: '#FFF0C2' }, { id: 'wizard', name: 'Wizard hat', price: 1500, bg: '#EDE8DD' }],
+  hats: [{ id: 'party', name: 'Party hat', price: 200, bg: '#ECE7FF' }, { id: 'bday_pink', name: 'Pink birthday', price: 250, bg: '#FFE8F2' }, { id: 'bday_blue', name: 'Blue birthday', price: 250, bg: '#E3F2FF' }, { id: 'bday_green', name: 'Green birthday', price: 300, bg: '#E9F7DF' }, { id: 'bday_gold', name: 'Gold birthday', price: 400, bg: '#FFF4D6' }, { id: 'crown', name: 'Royal crown', price: 800, bg: '#FFF0C2' }, { id: 'wizard', name: 'Wizard hat', price: 1500, bg: '#EDE8DD' }],
   glasses: Object.entries(GLASSES).map(([id, g]) => ({ id, name: g.name, price: g.price, bg: '#E8F6FA' })),
   poses: Object.entries(POSES).map(([id, g]) => ({ id, name: g.name, price: g.price, bg: '#FFE8F2' })),
   hold: Object.entries(HELD).map(([id, g]) => ({ id, name: g.name, price: g.price, bg: '#E9F7DF' })),
